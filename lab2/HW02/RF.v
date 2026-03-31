@@ -20,15 +20,18 @@ module RF (
 	
 	// Fill in the asynchronous functions
 	always @(*) begin
-		??
+		rd_data1 = register_file[rd_addr1];
+		rd_data2 = register_file[rd_addr2];
 	end
-	assign ??
     
 	always @(posedge clk) begin
 		if (rst) begin
 			$readmemh("initial_reg.mem", register_file);
 		end
 		// FILL what happens synchronously
+		if (RegWrite) begin
+			register_file[wr_addr] = wr_data;
+		end
 	end
 
 endmodule
