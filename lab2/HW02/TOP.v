@@ -24,7 +24,7 @@ module TOP(
 	// Instantiate modules and connect them!
     RF rf (clk, rst, rd_addr1, rd_addr2, rd_data1, rd_data2, RegWrite, wr_addr, wr_data);
     ALU alu (rd_data1, rd_data2, shamt, funct, rf.wr_data);
-
+    
     // RF input
     // rf.wr_data = alu.alu_result;
     // rf.rd_addr1 = rd_addr1;
