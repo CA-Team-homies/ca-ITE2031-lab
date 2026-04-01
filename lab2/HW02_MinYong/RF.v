@@ -24,6 +24,7 @@ module RF (
 	// -> when read address's changes 
 	// -> read the data in register file.
 	always @(rd_addr1 , rd_addr2) begin
+	//always @(*) begin
 		rd_data1 = register_file[rd_addr1];
 		rd_data2 = register_file[rd_addr2];
 	end
