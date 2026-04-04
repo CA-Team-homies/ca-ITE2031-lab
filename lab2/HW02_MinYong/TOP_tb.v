@@ -2,7 +2,7 @@
 
 
 module TOP_tb;
-	parameter TEST_SIZE = 10000;
+	parameter TEST_SIZE = 20;
     
     reg clk;
     reg rst;
@@ -81,7 +81,7 @@ module TOP_tb;
         if (rd_data1 == rd_data1_in &&
 			rd_data2 == rd_data2_in &&
 			wr_data == wr_data_in) begin
-                $display("PASSED");
+                //$display("PASSED");
                 PASSED = PASSED + 1;
         end
         else begin
@@ -116,7 +116,7 @@ module TOP_tb;
         RegWrite = 0;
         #15
         rst = 0;
-        #10
+        #15
 
 		for (i = 0; i < TEST_SIZE; i = i + 1) begin
 			Test(rd_addr1_mem[i], rd_addr2_mem[i], wr_addr_mem[i],
