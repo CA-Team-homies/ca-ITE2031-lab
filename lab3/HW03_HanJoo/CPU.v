@@ -79,7 +79,6 @@ module CPU(
 
 	assign ext_imm = (SignExtend) ?  {{16{immi[15]}}, immi}: immi;
 
-
 	assign operand2 = ALUSrc ? ext_imm : rd_data2;
 
 	assign halt				= (inst == 32'b0);
@@ -108,7 +107,7 @@ module CPU(
 				// according to MIPS assembly.
 				//if (~|alu_result && Branch) PC_next = PC + 4 + (ext_imm << 2);
 				// according to assignment figure.
-				if (~|alu_result && Branch) PC_next = (PC + 4) + (ext_imm << 2);
+				if (|alu_result && Branch) PC_next = (PC + 4) + (ext_imm << 2);
 				else PC_next = PC + 4;
 			end
 		end

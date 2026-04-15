@@ -136,12 +136,14 @@ module CTRL(
 				ALUSrc = 			1;
 				SignExtend = 	1;
 				RegWrite = 		1;
+				ALUOp = `ALU_ADDU;
 			end
 
 			`OP_SW: begin
 				MemWrite = 		1;
 				ALUSrc = 			1;
 				SignExtend = 	1;
+				ALUOp = `ALU_ADDU;
 			end
 		endcase
 	end
