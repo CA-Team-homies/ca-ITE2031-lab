@@ -38,6 +38,8 @@ module CPU_tb;
 		for (i = 0; i < 32; i = i + 1) begin
 			if (cpu.rf.register_file[i] != register_file[i]) begin
 				FAILED = 1;
+				$display("index: %d, dat: %h, %h", i, cpu.rf.register_file[i], register_file[i]);
+
 			end
 		end
 		for (i = 0; i < 8192; i = i + 1) begin

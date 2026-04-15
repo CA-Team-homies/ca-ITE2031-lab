@@ -19,128 +19,87 @@ module CTRL(
 	output reg RegWrite,
 	output reg [3:0] ALUOp,
 	output reg SavePC
-  );
+    );
 
 	always @(*) begin
-		RegDst = 			0;
-		Jump = 				0;
-		Branch = 			0;
-		JR = 					0;
-		MemRead = 		0;
-		MemtoReg = 		0;
-		MemWrite = 		0;
-		ALUSrc = 			0;
-		SignExtend = 	0;
-		RegWrite = 		0;
-		SavePC = 			0;
-		if(opcode == `OP_RTYPE) begin
-			RegDst = 			1;
-			RegWrite = 		1;
-			if(funct == `FUNCT_JR) begin
-				JR = 1;
-				RegWrite = 0;
-			end
-			else begin
-				case(funct)
-					`FUNCT_ADDU: ALUOp = `ALU_ADDU;
-					`FUNCT_AND: 	ALUOp = `ALU_AND;
-					`FUNCT_NOR: 	ALUOp = `ALU_NOR;
-					`FUNCT_OR: 	ALUOp = `ALU_OR;
-					`FUNCT_SLT:	ALUOp = `ALU_SLT;
-					`FUNCT_SLTU: ALUOp = `ALU_SLTU;
-					`FUNCT_SUBU: ALUOp = `ALU_SUBU;
-					`FUNCT_XOR: 	ALUOp = `ALU_XOR;
-					`FUNCT_SLL: 	ALUOp = `ALU_SLL;
-					`FUNCT_SRA: 	ALUOp = `ALU_SRA;
-					`FUNCT_SRL: 	ALUOp = `ALU_SRL;
-				endcase
-			end
-		end
-		case(opcode)
-			`OP_J: begin
-				// RegDst = 			x;
-				Jump = 				1;
-			end
-
-			`OP_JAL: begin
-				Jump = 				1;
-				RegWrite = 		1;
-				SavePC = 			1;
-			end
-
-			`OP_BEQ: begin
-				Branch = 			1;
-				SignExtend = 	1;
-				ALUOp = `ALU_NEQ; // important
-			end
-
-			`OP_BNE: begin
-				Branch = 			1;
-				SignExtend = 	1;
-				ALUOp = `ALU_EQ; // important
-			end
-
-			`OP_ADDIU: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				SignExtend = 	1;
-				ALUOp = `ALU_AND; // important
-			end
-
-			`OP_SLTI: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				SignExtend = 	1;
-				ALUOp = `ALU_SLT; // important
-			end
-
-			`OP_SLTIU: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				SignExtend = 	1;
-				ALUOp = `ALU_SLTU; // important
-			end
-
-			`OP_ANDI: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				//SignExtend = 	1;
-				ALUOp = `ALU_AND; // important
-			end
-
-			`OP_ORI: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				//SignExtend = 	1;
-				ALUOp = `ALU_OR; // important
-			end
-
-			`OP_XORI: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				//SignExtend = 	1;
-				ALUOp = `ALU_XOR; // important
-			end
-
-			`OP_LUI: begin
-				RegWrite = 		1;
-				ALUSrc = 			1;
-				ALUOp = `ALU_LUI; // important
-			end
-
-			`OP_LW: begin
-				MemRead = 		1;
-				MemtoReg = 		1;
-				ALUSrc = 			1;
-				SignExtend = 	1;
-				RegWrite = 		1;
-			end
-
-			`OP_SW: begin
-				MemWrite = 		1;
-				ALUSrc = 			1;
-				SignExtend = 	1;
-			end
-		endcase
+	    RegDst = 0;
+        Jump = 0;
+        Branch = 0;
+        JR = 0;
+        MemRead = 0;
+        MemtoReg = 0;
+        MemWrite = 0;
+        ALUSrc = 0;
+        SignExtend = 0;
+        RegWrite = 0;
+        ALUOp = 0;
+        SavePC = 0;
+        if(opcode==`OP_RTYPE) 
+            RegDst = 1;
+        
+        if(opcode==`OP_J || opcode==`OP_JAL || (opcode==`OP_RTYPE && funct==`FUNCT_JR)) 
+            Jump = 1;
+        
+        if(opcode==`OP_BEQ || opcode==`OP_BNE) 
+            Branch = 1;
+        
+        if(opcode==`OP_RTYPE && funct==`FUNCT_JR) 
+            JR = 1;
+        
+        if(opcode==`OP_LW) begin
+            MemRead = 1;
+            MemtoReg = 1;
+        end
+        
+        if(opcode==`OP_SW) 
+            MemWrite = 1;
+        
+        if(opcode!=`OP_RTYPE && opcode!=`OP_BEQ && opcode!=`OP_BNE) 
+            ALUSrc = 1;
+        
+        if(opcode==`OP_ADDIU || opcode==`OP_SLTI ||
+            opcode==`OP_SLTIU ||opcode==`OP_BEQ ||
+            opcode==`OP_BNE || opcode==`OP_LW || opcode==`OP_SW) 
+            SignExtend = 1;
+        
+        if(opcode!=`OP_SW && opcode!=`OP_BEQ &&
+            opcode!=`OP_BNE && opcode!=`OP_J && !(opcode==`OP_RTYPE && funct==`FUNCT_JR)) 
+            RegWrite = 1;
+        
+        if((opcode==`OP_RTYPE && funct==`FUNCT_ADDU) || opcode==`OP_ADDIU ||
+            opcode==`OP_LW || opcode==`OP_SW) 
+            ALUOp = `ALU_ADDU;
+        else if((opcode==`OP_RTYPE && funct==`FUNCT_AND) || opcode==`OP_ANDI) 
+            ALUOp = `ALU_AND;
+        else if(opcode==`OP_RTYPE && funct==`FUNCT_NOR) 
+            ALUOp = `ALU_NOR;
+        else if((opcode==`OP_RTYPE && funct==`FUNCT_OR) || opcode==`OP_ORI) 
+            ALUOp = `ALU_OR;
+        else if(opcode==`OP_RTYPE && funct==`FUNCT_SLL) 
+            ALUOp = `ALU_SLL;
+        else if(opcode==`OP_RTYPE && funct==`FUNCT_SRA) 
+            ALUOp = `ALU_SRA;
+        else if(opcode==`OP_RTYPE && funct==`FUNCT_SRL) 
+            ALUOp = `ALU_SRL;
+        else if(opcode==`OP_RTYPE && funct==`FUNCT_SUBU) 
+            ALUOp = `ALU_SUBU;
+        else if((opcode==`OP_RTYPE && funct==`FUNCT_XOR) || opcode==`OP_XORI) 
+            ALUOp = `ALU_XOR;
+        else if((opcode==`OP_RTYPE && funct==`FUNCT_SLT) || opcode==`OP_SLTI) 
+            ALUOp = `ALU_SLT;
+        else if((opcode==`OP_RTYPE && funct==`FUNCT_SLTU) || opcode==`OP_SLTIU) 
+            ALUOp = `ALU_SLTU;
+        else if(opcode==`OP_BEQ) 
+            ALUOp = `ALU_EQ;
+        else if(opcode==`OP_BNE) 
+            ALUOp = `ALU_NEQ;
+        else if(opcode==`OP_LUI) 
+            ALUOp = `ALU_LUI;
+            
+        if(opcode==`OP_JAL)
+            SavePC = 1;
+        else
+            SavePC = 0;
+            
 	end
 endmodule
