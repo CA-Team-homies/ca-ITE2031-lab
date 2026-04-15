@@ -91,7 +91,7 @@ module CPU(
 			else 					wr_data = alu_result;
 		end
 		
-		if (SignExtend) ext_imm = $(signed)immi;
+		if (SignExtend) ext_imm = $signed(immi);
 		else 						ext_imm = immi;
 
 		if (ALUSrc) operand2 = ext_imm;

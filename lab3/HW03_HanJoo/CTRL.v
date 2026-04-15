@@ -53,112 +53,81 @@ module CTRL(
 					FUNCT_SLL: 	ALUOp = ALU_SLL;
 					FUNCT_SRA: 	ALUOp = ALU_SRA;
 					FUNCT_SRL: 	ALUOp = ALU_SRL;
-			endcase
+				endcase
+			end
 		end
-		else{
-			
-		}
-		// done for R/
-		
 		case(opcode)
 			OP_J: begin
 				// RegDst = 			x;
 				Jump = 				1;
-				Branch = 			x;
-				JR = 					0;
-				MemRead = 		0;
-				MemtoReg = 		x;
-				MemWrite = 		0;
-				ALUSrc = 			x;
-				SignExtend = 	x;
-				RegWrite = 		0;
-				SavePC = 			x;
 			end
 
 			OP_JAL: begin
-				RegDst = 			x;
 				Jump = 				1;
-				Branch = 			x;
-				JR = 					0;
-				MemRead = 		0;
-				MemtoReg = 		x;
-				MemWrite = 		0;
-				ALUSrc = 			x;
-				SignExtend = 	x;
 				RegWrite = 		1;
 				SavePC = 			1;
 			end
 
 			OP_BEQ: begin
-				RegDst = 			x;
-				Jump = 				0;
 				Branch = 			1;
-				JR = 					0;
-				MemRead = 		0;
-				MemtoReg = 		x;
-				MemWrite = 		0;
-				ALUSrc = 			0;
 				SignExtend = 	1;
-				RegWrite = 		0;
-				SavePC = 			0;
 				ALUOp = ALU_NEQ; // important
 			end
 
 			OP_BNE: begin
-				RegDst = 			x;
-				Jump = 				0;
 				Branch = 			1;
-				JR = 					0;
-				MemRead = 		0;
-				MemtoReg = 		x;
-				MemWrite = 		0;
-				ALUSrc = 			0;
 				SignExtend = 	1;
-				RegWrite = 		0;
-				SavePC = 			0;
 				ALUOp = ALU_EQ; // important
 			end
+
 			OP_ADDIU: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				SignExtend = 	1;
 				ALUOp = ALU_AND; // important
 			end
+
 			OP_SLTI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				SignExtend = 	1;
 				ALUOp = ALU_SLT; // important
 			end
+
 			OP_SLTIU: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				SignExtend = 	1;
 				ALUOp = ALU_SLTU; // important
 			end
+
 			OP_ANDI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				//SignExtend = 	1;
 				ALUOp = ALU_AND; // important
 			end
+
 			OP_ORI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				//SignExtend = 	1;
 				ALUOp = ALU_OR; // important
 			end
+
 			OP_XORI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				//SignExtend = 	1;
 				ALUOp = ALU_XOR; // important
 			end
+
 			OP_LUI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
 				ALUOp = ALU_LUI; // important
 			end
+
 			OP_LW: begin
 				MemRead = 		1;
 				MemtoReg = 		1;
@@ -166,6 +135,7 @@ module CTRL(
 				SignExtend = 	1;
 				RegWrite = 		1;
 			end
+
 			OP_SW: begin
 				MemWrite = 		1;
 				ALUSrc = 			1;
