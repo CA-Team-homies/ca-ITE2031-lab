@@ -69,15 +69,17 @@ module CPU(
 	assign immi = 	inst[15:0];
 	assign immj = 	inst[25:0];
 
-  assign rd_addr1 = rs;
-  assign rd_addr2 = rt;
+  	assign rd_addr1 = rs;
+  	assign rd_addr2 = rt;
 
 	assign operand1 = rd_data1;
 
 	assign mem_addr = alu_result;
 	assign mem_write_data = rd_data2;
 
-	assign ext_imm = SignExtend ? $signed(immi) : immi;
+	assign ext_imm = (SignExtend) ?  {{16{immi[15]}}, immi}: immi;
+
+
 	assign operand2 = ALUSrc ? ext_imm : rd_data2;
 
 	assign halt				= (inst == 32'b0);
@@ -85,7 +87,7 @@ module CPU(
 	always @(*) begin
 		if (SavePC) begin
 			wr_addr = 5'd31;
-			wr_data = PC;
+			wr_data = PC+4;
 		end
 		else begin
 			if (RegDst) 	wr_addr = rd;
@@ -98,15 +100,15 @@ module CPU(
 		if (JR) PC_next = rd_data1;
 		else begin
 			// according to MIPS assembly.
-			if (Jump) PC_next = (PC & 28'd0) | (immj << 2);
+			if (Jump) PC_next = (PC & 32'hF0000000) | (immj << 2);
 			// according to assignment figure.
 			// if (Jump) PC_next = ((PC + 4) & 28'd0) | (immj << 2);
 
 			else begin
 				// according to MIPS assembly.
-				if (~|alu_result && Branch) PC_next = PC + (ext_imm << 2);
+				//if (~|alu_result && Branch) PC_next = PC + 4 + (ext_imm << 2);
 				// according to assignment figure.
-				// if (~|alu_result && Branch) PC_next = (PC + 4) + (ext_imm << 2);
+				if (~|alu_result && Branch) PC_next = (PC + 4) + (ext_imm << 2);
 				else PC_next = PC + 4;
 			end
 		end
@@ -121,7 +123,7 @@ module CPU(
 		end
 	end
 	
-
+	
 	CTRL ctrl (
 		opcode,
 		funct,
@@ -138,6 +140,8 @@ module CPU(
 		ALUOp,
 		SavePC
 	);
+
+	
 
 	RF rf (
 		clk,
@@ -166,7 +170,7 @@ module CPU(
 		operand1,
 		operand2,
 		shamt,
-		funct,
+		ALUOp,
 		alu_result
 	);
 	
