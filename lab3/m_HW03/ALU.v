@@ -10,23 +10,24 @@ module ALU(
 		output reg [31:0]	alu_result
 	);
 	
+	// FIXME
 	always @(*) begin
 		alu_result = 0;
 		case (funct)
-			`ALU_ADDU:
-			`ALU_AND :
-			`ALU_NOR :
-			`ALU_OR  :
-			`ALU_SLL :
-			`ALU_SRA :
-			`ALU_SRL :
-			`ALU_SUBU:
-			`ALU_XOR :
-			`ALU_SLT :
-			`ALU_SLTU:
-			`ALU_EQ  :
-			`ALU_NEQ :
-			`ALU_LUI :
+			`ALU_ADDU: alu_result = operand1 + operand2;
+			`ALU_AND : alu_result = operand1 & operand2;
+			`ALU_NOR : alu_result = ~(operand1 | operand2);
+			`ALU_OR  : alu_result = operand1 | operand2;
+			`ALU_SLL : alu_result = operand2 << shamt;
+			`ALU_SRA : alu_result = $signed(operand2) >>> shamt;
+			`ALU_SRL : alu_result = operand2 >> shamt;
+			`ALU_SUBU: alu_result = operand1 - operand2;
+			`ALU_XOR : alu_result = operand1 ^ operand2;
+			`ALU_SLT : alu_result = $signed(operand1) < $signed(operand2);
+			`ALU_SLTU: alu_result = (operand1) < (operand2);
+			`ALU_EQ  : alu_result = operand1 == operand2;
+			`ALU_NEQ : alu_result = operand1 != operand2;
+			`ALU_LUI : alu_result = operand2 << 16;
 		endcase
 	end
 endmodule

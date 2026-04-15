@@ -10,18 +10,21 @@ module CTRL(
 	output reg RegDst,
 	output reg Jump,
 	output reg Branch,
-	output reg JR,
 	output reg MemRead,
 	output reg MemtoReg,
+	output reg [3:0] ALUOp,
 	output reg MemWrite,
 	output reg ALUSrc,
-	output reg SignExtend,
 	output reg RegWrite,
-	output reg [3:0] ALUOp,
-	output reg SavePC
+	// NEW !
+	output reg JR, // jr inst 인가?
+	output reg SignExtend, // singextend를 사용할 것인가?
+	// I type memory, alu 같은 경우만 signextend를 사용; LSB 16bit
+	output reg SavePC // 돌아올 pc값을 RF에 저장해줄 것인가? 
+	// -> For jal label : GPR[ra] = PC+4 
     );
 
 	always @(*) begin
-		// FIXME
+		
 	end
 endmodule

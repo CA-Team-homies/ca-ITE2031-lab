@@ -1,11 +1,13 @@
 `timescale 1ns / 100ps
 
 module RF (
+	// You may also change the input and output ports (maybe changing reg to wire)
 		input clk,
 		input rst,
 		// Read-related ports
 		input [4:0] rd_addr1,
 		input [4:0] rd_addr2,
+		// >>>>> should we change the reg output to wire output ?? <<<<<
 		output reg [31:0] rd_data1,
 		output reg [31:0] rd_data2,
 		// Write-related ports
@@ -15,19 +17,29 @@ module RF (
 	);
 
     reg [31:0] register_file [0:31];
+
 	
-	// FIXME (Perform Read Operation)
-	always @(*) begin
+	// Fill in the asynchronous functions
+	// async 
+	// -> when read address's changes 
+	// -> read the data in register file.
+	always @(rd_addr1, rd_addr2) begin
+		rd_data1 = register_file[rd_addr1];
+		rd_data2 = register_file[rd_addr2];
 	end
+	// there are no wires to connect.
+	//assign ??
     
 	always @(posedge clk) begin
-		// Reset the regsiter file to pre-defined values
 		if (rst) begin
-        	$readmemh("initial_reg.mem", register_file);
+			$readmemh("initial_reg.mem", register_file);
 		end
-		else begin
-			// FIXME (Write Operation ...)
+		// Since we use reg array variable : register_file as storage.
+		// -> non-blocking : "<=" should be used. 
+		if(RegWrite) begin
+			register_file[wr_addr] <= wr_data;
 		end
+		// FILL what happens synchronously
 	end
 
 endmodule

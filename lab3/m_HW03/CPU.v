@@ -17,6 +17,7 @@ module CPU(
 	wire [4:0]		shamt;
 	wire [5:0]		funct;
 	wire [15:0]		immi;
+	// immediate for Jal
 	wire [25:0]		immj;
 
 	// Control-related wires
@@ -63,6 +64,7 @@ module CPU(
 	assign halt				= (inst == 32'b0);
 
 	always @(*) begin
+		
 	end
 
 
