@@ -99,7 +99,7 @@ module CPU(
 		if (JR) PC_next = rd_data1;
 		else begin
 			// according to MIPS assembly.
-			if (Jump) PC_next = (PC & 32'hF0000000) | (immj << 2);
+			if (Jump) PC_next = ((PC+4) & 32'hF0000000) | (immj << 2);
 			// according to assignment figure.
 			// if (Jump) PC_next = ((PC + 4) & 28'd0) | (immj << 2);
 
