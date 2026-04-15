@@ -77,6 +77,9 @@ module CPU(
 	assign mem_addr = alu_result;
 	assign mem_write_data = rd_data2;
 
+	assign ext_imm = SignExtend ? $signed(immi) : immi;
+	assign operand2 = ALUSrc ? ext_imm : rd_data2;
+
 	assign halt				= (inst == 32'b0);
 
 	always @(*) begin
@@ -91,11 +94,6 @@ module CPU(
 			else 					wr_data = alu_result;
 		end
 		
-		if (SignExtend) ext_imm = $signed(immi);
-		else 						ext_imm = immi;
-
-		if (ALUSrc) operand2 = ext_imm;
-		else				operand2 = rd_data2;
 
 		if (JR) PC_next = rd_data1;
 		else begin
