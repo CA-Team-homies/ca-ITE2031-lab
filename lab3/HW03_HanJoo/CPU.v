@@ -166,7 +166,7 @@ module CPU(
 		operand1,
 		operand2,
 		shamt,
-		funct,
+		ALUOp,
 		alu_result
 	);
 	
