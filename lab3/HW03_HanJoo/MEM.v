@@ -4,12 +4,12 @@ module MEM(
 	input				        clk,
 	input				        rst,
 
-	input [31:0]		    inst_addr,
+	input 		 [31:0]	  inst_addr,
 	output reg [31:0]	  inst,
 
-	input [31:0]		    mem_addr,
+	input 		 [31:0]		mem_addr,
 	input				        MemWrite,
-	input [31:0]		    mem_write_data,
+	input 		 [31:0]		mem_write_data,
 	output reg [31:0]	  mem_read_data
     );
 

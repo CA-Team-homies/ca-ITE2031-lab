@@ -19,8 +19,240 @@ module CTRL(
 	output reg RegWrite,
 	output reg [3:0] ALUOp,
 	output reg SavePC
-    );
+  );
 
 	always @(*) begin
+		case(opcode)
+			OP_RTYPE: begin
+				if(funct == FUNCT_JR) begin
+					RegDst = 			x; // RegDst ? rd : rt
+					Jump = 				x;
+					Branch = 			x;
+					JR = 					1;
+					MemRead = 		0;
+					MemtoReg = 		0; // MemtoReg ? Memread : ALUresult
+					MemWrite = 		0;
+					ALUSrc = 			x; 
+					SignExtend = 	x;
+					RegWrite = 		0;
+					SavePC = 			x;
+				end
+				else begin
+					RegDst = 			1;
+					Jump = 				0;
+					Branch = 			0;
+					JR = 					0;
+					MemRead = 		0;
+					MemtoReg = 		x;
+					MemWrite = 		0;
+					ALUSrc = 			0;
+					SignExtend = 	0;
+					RegWrite = 		1;
+					SavePC = 			0;
+					case(funct)
+						FUNCT_ADDU: ALUOp = ALU_ADDU;
+						FUNCT_AND: 	ALUOp = ALU_AND;
+						FUNCT_NOR: 	ALUOp = ALU_NOR;
+						FUNCT_OR: 	ALUOp = ALU_OR;
+						FUNCT_SLT:	ALUOp = ALU_SLT;
+						FUNCT_SLTU: ALUOp = ALU_SLTU;
+						FUNCT_SUBU: ALUOp = ALU_SUBU;
+						FUNCT_XOR: 	ALUOp = ALU_XOR;
+						FUNCT_SLL: 	ALUOp = ALU_SLL;
+						FUNCT_SRA: 	ALUOp = ALU_SRA;
+						FUNCT_SRL: 	ALUOp = ALU_SRL;
+					endcase
+				end
+			end
+
+			OP_J: begin
+				RegDst = 			x;
+				Jump = 				1;
+				Branch = 			x;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		x;
+				MemWrite = 		0;
+				ALUSrc = 			x;
+				SignExtend = 	x;
+				RegWrite = 		0;
+				SavePC = 			x;
+			end
+
+			OP_JAL: begin
+				RegDst = 			x;
+				Jump = 				1;
+				Branch = 			x;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		x;
+				MemWrite = 		0;
+				ALUSrc = 			x;
+				SignExtend = 	x;
+				RegWrite = 		1;
+				SavePC = 			1;
+			end
+
+			OP_BEQ: begin
+				RegDst = 			x;
+				Jump = 				0;
+				Branch = 			1;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		x;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	1;
+				RegWrite = 		0;
+				SavePC = 			0;
+				ALUOp = ALU_NEQ; // important
+			end
+
+			OP_BNE: begin
+				RegDst = 			x;
+				Jump = 				0;
+				Branch = 			1;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		x;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	1;
+				RegWrite = 		0;
+				SavePC = 			0;
+				ALUOp = ALU_EQ; // important
+			end
+
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+			OP_J: begin
+				RegDst = 			1;
+				Jump = 				1;
+				Branch = 			0;
+				JR = 					0;
+				MemRead = 		0;
+				MemtoReg = 		0;
+				MemWrite = 		0;
+				ALUSrc = 			0;
+				SignExtend = 	0;
+				RegWrite = 		0;
+				SavePC = 			0;
+			end
+		endcase
 	end
 endmodule

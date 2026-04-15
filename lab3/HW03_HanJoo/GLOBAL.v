@@ -17,17 +17,17 @@
 `define		FUNCT_SRL			6'd2
 `define		FUNCT_SRA			6'd3
 `define 	FUNCT_JR			6'd8
-`define		FUNCT_ADDU			6'd33
-`define		FUNCT_SUBU			6'd35
+`define		FUNCT_ADDU		6'd33
+`define		FUNCT_SUBU		6'd35
 `define		FUNCT_AND			6'd36
 `define		FUNCT_OR			6'd37
 `define		FUNCT_XOR			6'd38
 `define		FUNCT_NOR			6'd39
 `define		FUNCT_SLT			6'd42
-`define		FUNCT_SLTU			6'd43
+`define		FUNCT_SLTU		6'd43
 
 `define		OP_RTYPE			6'd0
-`define		OP_J				6'd2
+`define		OP_J				  6'd2
 `define		OP_JAL				6'd3
 `define		OP_BEQ				6'd4
 `define		OP_BNE				6'd5
@@ -38,5 +38,5 @@
 `define		OP_ORI				6'd13
 `define		OP_XORI				6'd14
 `define		OP_LUI				6'd15
-`define		OP_LW				6'd35
-`define		OP_SW				6'd43
+`define		OP_LW			  	6'd35
+`define		OP_SW				  6'd43

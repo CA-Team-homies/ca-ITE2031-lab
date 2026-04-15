@@ -23,12 +23,9 @@ module RF (
 	// async 
 	// -> when read address's changes 
 	// -> read the data in register file.
-	always @(*) begin
-	//always @(*) begin
+	always @(rd_addr1, rd_addr2) begin
 		rd_data1 = register_file[rd_addr1];
 		rd_data2 = register_file[rd_addr2];
-		$display("%h from %d ", rd_data1, rd_addr1);
-		$display("%h from %d ", rd_data2, rd_addr2);
 	end
 	// there are no wires to connect.
 	//assign ??
@@ -40,9 +37,7 @@ module RF (
 		// Since we use reg array variable : register_file as storage.
 		// -> non-blocking : "<=" should be used. 
 		if(RegWrite) begin
-			register_file[wr_addr] = wr_data;
-			$display("here is edge, %h written in %d ", wr_data, wr_addr);
-
+			register_file[wr_addr] <= wr_data;
 		end
 		// FILL what happens synchronously
 	end

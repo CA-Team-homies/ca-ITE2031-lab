@@ -2,8 +2,8 @@
 
 
 module CPU(
-	input		clk,
-	input		rst,
+	input			clk,
+	input			rst,
 	output 		halt
 	);
 	
@@ -20,18 +20,18 @@ module CPU(
 	wire [25:0]		immj;
 
 	// Control-related wires
-	wire			RegDst;
-	wire			Jump;
-	wire 			Branch;
-	wire 			JR;
-	wire			MemRead;
-	wire			MemtoReg;
-	wire 			MemWrite;
-	wire			ALUSrc;
-	wire			SignExtend;
-	wire			RegWrite;
-	wire [3:0]		ALUOp;
-	wire			SavePC;
+	wire			 RegDst;
+	wire			 Jump;
+	wire 		 	 Branch;
+	wire 		 	 JR;
+	wire			 MemRead;
+	wire			 MemtoReg;
+	wire 		   MemWrite;
+	wire			 ALUSrc;
+	wire			 SignExtend;
+	wire			 RegWrite;
+	wire [3:0] ALUOp;
+	wire			 SavePC;
 
 	// Sign extend the immediate
 	wire [31:0]		ext_imm;
@@ -41,7 +41,7 @@ module CPU(
 	wire [4:0]		rd_addr2;
 	wire [31:0]		rd_data1;
 	wire [31:0]		rd_data2;
-	reg [4:0]		wr_addr;
+	reg [4:0]			wr_addr;
 	reg [31:0]		wr_data;
 
 	// MEM-related wires
@@ -59,10 +59,59 @@ module CPU(
 	reg [31:0]	PC_next;
 
 	// Define the wires
+	assign opcode = inst[31:26];
+	assign rs = 		inst[25:21];
+	assign rt = 		inst[20:16];
+	assign rd = 		inst[15:11];
+	assign shamt = 	inst[10:6];
+	assign funct = 	inst[5:0];
+
+	assign immi = 	inst[15:0];
+	assign immj = 	inst[25:0];
+
+  assign rd_addr1 = rs;
+  assign rd_addr2 = rt;
+
+	assign operand1 = rd_data1;
+
+	assign mem_addr = alu_result;
+	assign mem_write_data = rd_data2;
 
 	assign halt				= (inst == 32'b0);
 
 	always @(*) begin
+		if (SavePC) begin
+			wr_addr = 5'd31;
+			wr_data = PC;
+		end
+		else begin
+			if (RegDst) 	wr_addr = rd;
+			else 					wr_addr = rt;
+			if (MemtoReg) wr_data = mem_read_data;
+			else 					wr_data = alu_result;
+		end
+		
+		if (SignExtend) ext_imm = $(signed)immi;
+		else 						ext_imm = immi;
+
+		if (ALUSrc) operand2 = ext_imm;
+		else				operand2 = rd_data2;
+
+		if (JR) PC_next = rd_data1;
+		else begin
+			// according to MIPS assembly.
+			if (Jump) PC_next = (PC & 28'd0) | (immj << 2);
+			// according to assignment figure.
+			// if (Jump) PC_next = ((PC + 4) & 28'd0) | (immj << 2);
+
+			else begin
+				// according to MIPS assembly.
+				if (~|alu_result && Branch) PC_next = PC + (ext_imm << 2);
+				// according to assignment figure.
+				// if (~|alu_result && Branch) PC_next = (PC + 4) + (ext_imm << 2);
+				else PC_next = PC + 4;
+			end
+		end
 	end
 
 
@@ -107,7 +156,7 @@ module CPU(
 	MEM mem (
 		clk,
 		rst,
-		inst_addr,
+		PC,
 		inst,
 		mem_addr,
 		MemWrite,
