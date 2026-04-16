@@ -69,39 +69,40 @@ module CPU(
 	assign immi = 	inst[15:0];
 	assign immj = 	inst[25:0];
 
-  	assign rd_addr1 = rs;
-  	assign rd_addr2 = rt;
+  assign rd_addr1 = rs;
+  assign rd_addr2 = rt;
 
 	assign operand1 = rd_data1;
 
 	assign mem_addr = alu_result;
 	assign mem_write_data = rd_data2;
 
-	assign ext_imm = (SignExtend) ?  {{16{immi[15]}}, immi}: immi;
+	assign ext_imm = (SignExtend) ? {{16{immi[15]}}, immi} : immi;
 
 	assign operand2 = ALUSrc ? ext_imm : rd_data2;
 
-	assign halt				= (inst == 32'b0);
+	assign halt	= (inst == 32'b0);
 
 	always @(*) begin
 		if (SavePC) begin
 			wr_addr = 5'd31;
-			wr_data = PC+4;
+			wr_data = PC + 4;
 		end
+
 		else begin
 			if (RegDst) 	wr_addr = rd;
 			else 					wr_addr = rt;
 			if (MemtoReg) wr_data = mem_read_data;
 			else 					wr_data = alu_result;
 		end
-		
 
 		if (JR) PC_next = rd_data1;
+
 		else begin
 			// according to MIPS assembly.
-			if (Jump) PC_next = ((PC+4) & 32'hF0000000) | (immj << 2);
+			// if (Jump) PC_next = (PC & 32'hF0000000) | (immj << 2);
 			// according to assignment figure.
-			// if (Jump) PC_next = ((PC + 4) & 28'd0) | (immj << 2);
+			if (Jump) PC_next = ((PC + 4) & 32'hF0000000) | (immj << 2);
 
 			else begin
 				// according to MIPS assembly.
@@ -113,15 +114,13 @@ module CPU(
 		end
 	end
 
-
 	// Update the Clock
 	always @(posedge clk) begin
-		if (rst)	PC <= 0;
+		if (rst) PC <= 0;
 		else begin
 			PC <= PC_next;
 		end
 	end
-	
 	
 	CTRL ctrl (
 		.opcode(opcode),
@@ -139,8 +138,6 @@ module CPU(
 		.ALUOp(ALUOp),
 		.SavePC(SavePC)
 	);
-
-	
 
 	RF rf (
 		.clk(clk),

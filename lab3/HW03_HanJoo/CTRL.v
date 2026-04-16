@@ -42,13 +42,13 @@ module CTRL(
 			end
 			else begin
 				case(funct)
-					`FUNCT_ADDU: ALUOp = `ALU_ADDU;
+					`FUNCT_ADDU:  ALUOp = `ALU_ADDU;
 					`FUNCT_AND: 	ALUOp = `ALU_AND;
 					`FUNCT_NOR: 	ALUOp = `ALU_NOR;
-					`FUNCT_OR: 	ALUOp = `ALU_OR;
-					`FUNCT_SLT:	ALUOp = `ALU_SLT;
-					`FUNCT_SLTU: ALUOp = `ALU_SLTU;
-					`FUNCT_SUBU: ALUOp = `ALU_SUBU;
+					`FUNCT_OR: 		ALUOp = `ALU_OR;
+					`FUNCT_SLT:		ALUOp = `ALU_SLT;
+					`FUNCT_SLTU: 	ALUOp = `ALU_SLTU;
+					`FUNCT_SUBU: 	ALUOp = `ALU_SUBU;
 					`FUNCT_XOR: 	ALUOp = `ALU_XOR;
 					`FUNCT_SLL: 	ALUOp = `ALU_SLL;
 					`FUNCT_SRA: 	ALUOp = `ALU_SRA;
@@ -58,7 +58,6 @@ module CTRL(
 		end
 		case(opcode)
 			`OP_J: begin
-				// RegDst = 			x;
 				Jump = 				1;
 			end
 
@@ -72,14 +71,12 @@ module CTRL(
 				Branch = 			1;
 				SignExtend = 	1;
 				ALUOp = `ALU_EQ; // important
-				//ALUOp = `ALU_NEQ; // important
 			end
 
 			`OP_BNE: begin
 				Branch = 			1;
 				SignExtend = 	1;
 				ALUOp = `ALU_NEQ; // important
-				//ALUOp = `ALU_EQ; // important
 			end
 
 			`OP_ADDIU: begin
@@ -106,21 +103,21 @@ module CTRL(
 			`OP_ANDI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
-				//SignExtend = 	1;
+				// SignExtend = 	1;
 				ALUOp = `ALU_AND; // important
 			end
 
 			`OP_ORI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
-				//SignExtend = 	1;
+				// SignExtend = 	1;
 				ALUOp = `ALU_OR; // important
 			end
 
 			`OP_XORI: begin
 				RegWrite = 		1;
 				ALUSrc = 			1;
-				//SignExtend = 	1;
+				// SignExtend = 	1;
 				ALUOp = `ALU_XOR; // important
 			end
 
