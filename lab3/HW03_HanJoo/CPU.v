@@ -124,53 +124,53 @@ module CPU(
 	
 	
 	CTRL ctrl (
-		opcode,
-		funct,
-		RegDst,
-		Jump,
-		Branch,
-		JR,
-		MemRead,
-		MemtoReg,
-		MemWrite,
-		ALUSrc,
-		SignExtend,
-		RegWrite,
-		ALUOp,
-		SavePC
+		.opcode(opcode),
+		.funct(funct),
+		.RegDst(RegDst),
+		.Jump(Jump),
+		.Branch(Branch),
+		.JR(JR),
+		.MemRead(MemRead),
+		.MemtoReg(MemtoReg),
+		.MemWrite(MemWrite),
+		.ALUSrc(ALUSrc),
+		.SignExtend(SignExtend),
+		.RegWrite(RegWrite),
+		.ALUOp(ALUOp),
+		.SavePC(SavePC)
 	);
 
 	
 
 	RF rf (
-		clk,
-		rst,
-		rd_addr1,
-		rd_addr2,
-		rd_data1,
-		rd_data2,
-		RegWrite,
-		wr_addr,
-		wr_data
+		.clk(clk),
+		.rst(rst),
+		.rd_addr1(rd_addr1),
+		.rd_addr2(rd_addr2),
+		.rd_data1(rd_data1),
+		.rd_data2(rd_data2),
+		.RegWrite(RegWrite),
+		.wr_addr(wr_addr),
+		.wr_data(wr_data)
 	);
 
 	MEM mem (
-		clk,
-		rst,
-		PC,
-		inst,
-		mem_addr,
-		MemWrite,
-		mem_write_data,
-		mem_read_data
+		.clk(clk),
+		.rst(rst),
+		.inst_addr(PC),
+		.inst(inst),
+		.mem_addr(mem_addr),
+		.MemWrite(MemWrite),
+		.mem_write_data(mem_write_data),
+		.mem_read_data(mem_read_data)
 	);
 	
 	ALU alu (
-		operand1,
-		operand2,
-		shamt,
-		ALUOp,
-		alu_result
+		.operand1(operand1),
+		.operand2(operand2),
+		.shamt(shamt),
+		.funct(ALUOp),
+		.alu_result(alu_result)
 	);
 	
 endmodule
