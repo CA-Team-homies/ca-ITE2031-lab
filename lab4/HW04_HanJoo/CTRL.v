@@ -32,9 +32,6 @@ module CTRL(
 	always @(*) begin
 		// FIXME
 		case (State)
-<<<<<<< HEAD
-			`STATE0: begin 
-=======
 			`STATE0: begin
 				IorD = 0;
 				IRWrite = 1;
@@ -43,56 +40,58 @@ module CTRL(
 				PCWrite = 1;
 				PCSource = 2'b00;
 				NextState = `STATE1;
->>>>>>> 9851345f2b60a7d2c7ea375877cef74c26ec018d
 			end
+
 			`STATE1: begin
-				if opcode == `OP_J or `OP_JAL begin
+				if (opcode == `OP_J || `OP_JAL) begin
 					PCWrite = 1;
-					PCSource = 10;
-					if opcode == `OP_JAL begin
-						MemtoReg = 10;
-						RegDst = 10;
+					PCSource = 2'b10;
+					if (opcode == `OP_JAL) begin
+						MemtoReg = 2'b10;
+						RegDst = 2'b10;
 						RegWrite = 1;
 					end
 					NextState = 0;
 				end
-				else if (opcode == `OP_RTYPE) && (funct == `FUNCT_JR) begin
+				else if ((opcode == `OP_RTYPE) && (funct == `FUNCT_JR)) begin
 					PCWrite = 1;
-					PCSource = 11;	
+					PCSource = 2'b11;	
 					NextState = 0;
 				end
 				else begin
 					ALUSrcA = 0;
-					ALUSrcB = 11;
+					ALUSrcB = 2'b11;
 					ALUOp = `ALU_ADDU;
 					NextState = 2;
 				end
-
 			end
+
 			`STATE2: begin
-				if opcode == `OP_BEQ begin
+				if (opcode == `OP_BEQ || opcode == `OP_BNE) begin
 					ALUSrcA = 1;
-					ALUSrcB = 00;
-					ALUOp = `ALU_SUBU;
-					PCSource = 01;
+					ALUSrcB = 2'b00;
+					ALUOp = (opcode == `OP_BEQ ? ALU_NEQ : ALU_EQ);
+					PCSource = 2'b01;
 					PCWriteCond = 1;
 					NextState = 0;
 				end
-				else if opcode == `OP_RTYPE begin
+				else if (opcode == `OP_RTYPE) begin
 					ALUSrcA = 1;
-					ALUSrcB = 00;
+					ALUSrcB = 2'b00;
 					NextState = 4;
 					ALUOp = funct
 				end
-				else // For other I-type inst'
+				else begin// For other I-type inst'
 					ALUSrcA = 1;
-					ALUSrcB = 10;
+					ALUSrcB = 2'b10;
 					ALUOp = opcode;
 					NextState = 4;
-				if (opcode == `OP_LW) or (opcode == `OP_SW) begin
-					NextState = 3;
+					if (opcode == `OP_LW || opcode == `OP_SW) begin
+						NextState = 3;
+					end
 				end
 			end
+
 			`STATE3: begin
 				IorD = 1;
 				if (opcode == `OP_LW) NextState = `STATE4;
@@ -101,6 +100,7 @@ module CTRL(
 					NextState = `STATE0;
 				end
 			end
+
 			`STATE4: begin
 				RegDst = 0;
 				RegWrite = 1;
