@@ -25,7 +25,7 @@ module CPU(
 	reg [31:0] Operand1;
 	reg [31:0] Operand2;
 	
-	// Split the instructions
+	// Split the Instructions
 	wire [5:0] opcode;
 	wire [4:0] rs;
 	wire [4:0] rt;
@@ -45,15 +45,15 @@ module CPU(
 	wire [31:0] alu_result;
 
 	// Control-related wires
-	wire RegDst;
+	wire [1:0] RegDst;
 	wire RegWrite;
-	wire MemtoReg;
+	wire [1:0] MemtoReg;
 	wire MemWrite;
 	wire IorD;
 	wire ALUSrcA;
 	wire [1:0] ALUSrcB;
 	wire [3:0] ALUOp;
-	wire PCSource;
+	wire [1:0] PCSource;
 	wire PCWriteCond;
 	wire PCWrite;
 	wire [2:0] NextState;
@@ -62,45 +62,45 @@ module CPU(
 
 
 	// Define the wires
-	assign opcode = inst[31:26];
-	assign rs = 		inst[25:21];
-	assign rt = 		inst[20:16];
-	assign rd = 		inst[15:11];
-	assign shamt = 	inst[10:6];
-	assign funct = 	inst[5:0];
-	assign immi = 	inst[15:0];
-	assign immj = 	inst[25:0];
+	assign opcode = IR[31:26];
+	assign rs = 		IR[25:21];
+	assign rt = 		IR[20:16];
+	assign rd = 		IR[15:11];
+	assign shamt = 	IR[10:6];
+	assign funct = 	IR[5:0];
+	assign immi = 	IR[15:0];
+	assign immj = 	IR[25:0];
 
   	assign rd_addr1 = rs;
   	assign rd_addr2 = rt;
 
 	assign mem_write_data = B;
 
-	assign halt	= (inst == 32'b0);
+	assign halt	= (IR == 32'b0);
 	
 	always @(*) begin
 		Address = IorD ? ALUOut : PC;
-		case(RegDst)
-			`2'd0: wr_addr = rt;
-			`2'd1: wr_addr = rd;
-			`2'd2: wr_addr = 5'd31;
+		case (RegDst)
+			2'd0: wr_addr = rt;
+			2'd1: wr_addr = rd;
+			2'd2: wr_addr = 5'd31;
 		endcase
-		case(MemtoReg)
-			`2'd0: wr_data = ALUOut;
-			`2'd1: wr_data = MDR;
-			`2'd2: wr_data = PC;
+		case (MemtoReg)
+			2'd0: wr_data = ALUOut;
+			2'd1: wr_data = MDR;
+			2'd2: wr_data = PC;
 		endcase
 		Operand1 = ALUSrcA ? A : PC;
-		case(ALUSrcB)
-			`2'd0: Operand2 = B;
-			`2'd1: Operand2 = 32'd4;
-			`2'd2: Operand2 = {{16{immi[15]}}, immi};
-			`2'd3: Operand2 = {{16{immi[15]}}, immi} << 2;
+		case (ALUSrcB)
+			2'd0: Operand2 = B;
+			2'd1: Operand2 = 32'd4;
+			2'd2: Operand2 = {{16{immi[15]}}, immi};
+			2'd3: Operand2 = {{16{immi[15]}}, immi} << 2;
 		endcase
-		case(PCSource)
-			`2'd0: PC_next = alu_result;
-			`2'd1: PC_next = ALUOut;
-			`2'd2: PC_next = (PC & 32'hF0000000) | (immj << 2);
+		case (PCSource)
+			2'd0: PC_next = alu_result;
+			2'd1: PC_next = ALUOut;
+			2'd2: PC_next = (PC & 32'hF0000000) | (immj << 2);
 		endcase
 	end
 
@@ -134,7 +134,7 @@ module CPU(
 		.PCWrite(PCWrite),
 		.NextState(NextState),
 		.IRWrite(IRWrite),
-		.InstDone(InstDone)
+		.IRDone(IRDone)
 	);
 
 	RF rf (
