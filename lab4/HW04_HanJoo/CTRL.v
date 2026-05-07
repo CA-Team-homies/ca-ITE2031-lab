@@ -31,5 +31,17 @@ module CTRL(
 
 	always @(*) begin
 		// FIXME
+		case (State)
+			`STATE0: begin
+			end
+			`STATE1: begin
+			end
+			`STATE2: begin
+			end
+			`STATE3: begin
+			end
+			`STATE4: begin
+			end
+		endcase
 	end
 endmodule
