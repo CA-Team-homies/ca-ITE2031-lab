@@ -31,6 +31,21 @@ module CTRL(
 
 	always @(*) begin
 		// FIXME
+		RegDst = 0;
+		RegWrite = 0;
+		MemtoReg = 0;
+		MemWrite = 0;
+		IorD = 0;
+		ALUSrcA = 0;
+		ALUSrcB = 0;
+		ALUOp = 0;
+		PCSource = 0;
+		PCWriteCond = 0;
+		PCWrite = 0;
+		NextState = 0;
+		IRWrite = 0;
+		InstDone = 0;
+
 		case (State)
 			`STATE0: begin
 				IorD = 0;
@@ -43,7 +58,22 @@ module CTRL(
 			end
 
 			`STATE1: begin
-				if (opcode == `OP_J || `OP_JAL) begin
+				RegDst = 0;
+				RegWrite = 0;
+				MemtoReg = 0;
+				MemWrite = 0;
+				IorD = 0;
+				ALUSrcA = 0;
+				ALUSrcB = 0;
+				ALUOp = 0;
+				PCSource = 0;
+				PCWriteCond = 0;
+				PCWrite = 0;
+				NextState = 0;
+				IRWrite = 0;
+				InstDone = 0;
+
+				if (opcode == `OP_J || opcode ==`OP_JAL) begin
 					PCWrite = 1;
 					PCSource = 2'b10;
 					if (opcode == `OP_JAL) begin
@@ -67,6 +97,21 @@ module CTRL(
 			end
 
 			`STATE2: begin
+				RegDst = 0;
+				RegWrite = 0;
+				MemtoReg = 0;
+				MemWrite = 0;
+				IorD = 0;
+				ALUSrcA = 0;
+				ALUSrcB = 0;
+				ALUOp = 0;
+				PCSource = 0;
+				PCWriteCond = 0;
+				PCWrite = 0;
+				NextState = 0;
+				IRWrite = 0;
+				InstDone = 0;
+
 				if (opcode == `OP_BEQ || opcode == `OP_BNE) begin
 					ALUSrcA = 1;
 					ALUSrcB = 2'b00;
@@ -113,8 +158,25 @@ module CTRL(
 			end
 
 			`STATE3: begin
+				RegDst = 0;
+				RegWrite = 0;
+				MemtoReg = 0;
+				MemWrite = 0;
+				IorD = 0;
+				ALUSrcA = 0;
+				ALUSrcB = 0;
+				ALUOp = 0;
+				PCSource = 0;
+				PCWriteCond = 0;
+				PCWrite = 0;
+				NextState = 0;
+				IRWrite = 0;
+				InstDone = 0;
+
 				IorD = 1;
-				if (opcode == `OP_LW) NextState = `STATE4;
+				if (opcode == `OP_LW) begin
+					NextState = `STATE4;
+				end
 				else if (opcode == `OP_SW) begin
 					MemWrite = 1;
 					NextState = `STATE0;
@@ -122,6 +184,21 @@ module CTRL(
 			end
 
 			`STATE4: begin
+				RegDst = 0;
+				RegWrite = 0;
+				MemtoReg = 0;
+				MemWrite = 0;
+				IorD = 0;
+				ALUSrcA = 0;
+				ALUSrcB = 0;
+				ALUOp = 0;
+				PCSource = 0;
+				PCWriteCond = 0;
+				PCWrite = 0;
+				NextState = 0;
+				IRWrite = 0;
+				InstDone = 0;
+
 				RegDst = 0;
 				RegWrite = 1;
 				MemtoReg = 0;

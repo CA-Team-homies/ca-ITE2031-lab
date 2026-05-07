@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-
+`include "GLOBAL.v"
 
 module CPU(
 	input			clk,
@@ -41,6 +41,7 @@ module CPU(
 	wire [31:0] rd_data2;
 	wire [31:0] mem_write_data;
 	wire [31:0] mem_read_data;
+	//wire [31:0] r31;
 
 	wire [31:0] alu_result;
 
@@ -101,14 +102,22 @@ module CPU(
 			2'd0: PC_next = alu_result;
 			2'd1: PC_next = ALUOut;
 			2'd2: PC_next = (PC & 32'hF0000000) | (immj << 2);
+			2'd3: PC_next = rd_data1;
 		endcase
 	end
 
 	// Update the Clock
 	always @(posedge clk) begin
-		if (rst) PC <= 0;
-		else if (PCWrite || (PCWriteCond && alu_result == 0)) PC <= PC_next;
-		if (IRWrite) IR <= mem_read_data;
+		if (rst) begin
+			PC <= 0;
+			State <= `STATE0;
+		end
+		else if (PCWrite || (PCWriteCond && (alu_result == 0))) begin
+			PC <= PC_next;
+		end
+		if (IRWrite) begin
+			IR <= mem_read_data;
+		end
 		// always latched
 		MDR <= mem_read_data;
 		A <= rd_data1;

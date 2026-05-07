@@ -32,7 +32,7 @@ module RF (
     
 	always @(posedge clk) begin
 		if (rst) begin
-			$readmemh("initial_reg1.mem", register_file);
+			$readmemh("initial_reg5.mem", register_file);
 		end
 		// Since we use reg array variable : register_file as storage.
 		// -> non-blocking : "<=" should be used. 

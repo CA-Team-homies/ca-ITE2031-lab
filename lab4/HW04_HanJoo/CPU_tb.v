@@ -17,10 +17,14 @@ module CPU_tb;
     CPU cpu (.clk(clk), .rst(rst), .halt(halt));
 
 	initial begin : REF_INIT
-		$readmemh("reference_mem1.mem", memory);
-		$readmemh("reference_reg1.mem", register_file);
+		$readmemh("reference_mem5.mem", memory);
+		$readmemh("reference_reg5.mem", register_file);
 	end
     
+	initial begin
+        $dumpfile("waveform.vcd");
+        $dumpvars(0,CPU_tb);
+    end
 
     initial begin : CLOCK_GENERATOR
         clk = 1'b0;
@@ -49,9 +53,9 @@ module CPU_tb;
 		end
 
 		if (FAILED) begin
-			$display("Simulation failed.");
+			//$display("Simulation failed.");
 			for (i = 0; i < 32; i = i + 1) begin
-				$display("index: %d, dat: %h, %h", i, cpu.rf.register_file[i], register_file[i]);
+				//$display("index: %d, dat: %h, %h", i, cpu.rf.register_file[i], register_file[i]);
 			end
 		end
 		else
