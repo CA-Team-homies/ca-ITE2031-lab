@@ -51,18 +51,18 @@ module CTRL(
 						RegDst = 2'b10;
 						RegWrite = 1;
 					end
-					NextState = 0;
+					NextState = `STATE0;
 				end
 				else if ((opcode == `OP_RTYPE) && (funct == `FUNCT_JR)) begin
 					PCWrite = 1;
 					PCSource = 2'b11;	
-					NextState = 0;
+					NextState = `STATE0;
 				end
 				else begin
 					ALUSrcA = 0;
 					ALUSrcB = 2'b11;
 					ALUOp = `ALU_ADDU;
-					NextState = 2;
+					NextState = `STATE2;
 				end
 			end
 
@@ -73,12 +73,12 @@ module CTRL(
 					ALUOp = (opcode == `OP_BEQ) ? ALU_NEQ : ALU_EQ;
 					PCSource = 2'b01;
 					PCWriteCond = 1;
-					NextState = 0;
+					NextState = `STATE0;
 				end
 				else if (opcode == `OP_RTYPE) begin
 					ALUSrcA = 1;
 					ALUSrcB = 2'b00;
-					NextState = 4;
+					NextState = `STATE4;
 					case(funct)
 						`FUNCT_ADDU:  ALUOp = `ALU_ADDU;
 						`FUNCT_AND: 	ALUOp = `ALU_AND;
@@ -105,9 +105,9 @@ module CTRL(
 						`OP_XORI: ALUOp = `ALU_XOR; 
 						`OP_LUI: ALUOp = `ALU_LUI; 
 					endcase
-					NextState = 4;
+					NextState = `STATE4;
 					if (opcode == `OP_LW || opcode == `OP_SW) begin
-						NextState = 3;
+						NextState = `STATE3;
 					end
 				end
 			end
