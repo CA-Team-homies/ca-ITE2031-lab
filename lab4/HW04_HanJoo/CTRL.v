@@ -32,11 +32,55 @@ module CTRL(
 	always @(*) begin
 		// FIXME
 		case (State)
-			`STATE0: begin
+			`STATE0: begin 
 			end
 			`STATE1: begin
+				if opcode == `OP_J or `OP_JAL begin
+					PCWrite = 1;
+					PCSource = 10;
+					if opcode == `OP_JAL begin
+						MemtoReg = 10;
+						RegDst = 10;
+						RegWrite = 1;
+					end
+					NextState = 0;
+				end
+				else if (opcode == `OP_RTYPE) && (funct == `FUNCT_JR) begin
+					PCWrite = 1;
+					PCSource = 11;	
+					NextState = 0;
+				end
+				else begin
+					ALUSrcA = 0;
+					ALUSrcB = 11;
+					ALUOp = `ALU_ADDU;
+					NextState = 2;
+				end
+
 			end
 			`STATE2: begin
+				if opcode == `OP_BEQ begin
+					ALUSrcA = 1;
+					ALUSrcB = 00;
+					ALUOp = `ALU_SUBU;
+					PCSource = 01;
+					PCWriteCond = 1;
+					NextState = 0;
+				end
+				else if opcode == `OP_RTYPE begin
+					ALUSrcA = 1;
+					ALUSrcB = 00;
+					NextState = 4;
+					ALUOp = funct
+				end
+				else // For other I-type inst'
+					ALUSrcA = 1;
+					ALUSrcB = 10;
+					ALUOp = opcode;
+					NextState = 4;
+				if (opcode == `OP_LW) or (opcode == `OP_SW) begin
+					NextState = 3;
+				end
 			end
 			`STATE3: begin
 			end
