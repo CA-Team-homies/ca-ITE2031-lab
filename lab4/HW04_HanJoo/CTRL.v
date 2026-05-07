@@ -14,6 +14,7 @@ module CTRL(
 
 	output reg MemtoReg,
 	output reg MemWrite,
+	output reg IorD,
 
 	output reg ALUSrcA,
 	output reg [1:0] ALUSrcB,
