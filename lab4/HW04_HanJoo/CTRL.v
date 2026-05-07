@@ -70,7 +70,7 @@ module CTRL(
 				if (opcode == `OP_BEQ || opcode == `OP_BNE) begin
 					ALUSrcA = 1;
 					ALUSrcB = 2'b00;
-					ALUOp = (opcode == `OP_BEQ ? ALU_NEQ : ALU_EQ);
+					ALUOp = (opcode == `OP_BEQ) ? ALU_NEQ : ALU_EQ;
 					PCSource = 2'b01;
 					PCWriteCond = 1;
 					NextState = 0;
