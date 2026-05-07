@@ -32,7 +32,18 @@ module CTRL(
 	always @(*) begin
 		// FIXME
 		case (State)
+<<<<<<< HEAD
 			`STATE0: begin 
+=======
+			`STATE0: begin
+				IorD = 0;
+				IRWrite = 1;
+				ALUSrcA = 0;
+				ALUSrcB = 2'b01;
+				PCWrite = 1;
+				PCSource = 2'b00;
+				NextState = `STATE1;
+>>>>>>> 9851345f2b60a7d2c7ea375877cef74c26ec018d
 			end
 			`STATE1: begin
 				if opcode == `OP_J or `OP_JAL begin
@@ -83,8 +94,24 @@ module CTRL(
 				end
 			end
 			`STATE3: begin
+				IorD = 1;
+				if (opcode == `OP_LW) NextState = `STATE4;
+				else if (opcode == `OP_SW) begin
+					MemWrite = 1;
+					NextState = `STATE0;
+				end
 			end
 			`STATE4: begin
+				RegDst = 0;
+				RegWrite = 1;
+				MemtoReg = 0;
+				NextState = `STATE0;
+				if (opcode == `OP_RTYPE) begin
+					RegDst = 1;
+				end
+				else begin
+					if (opcode == `OP_LW) MemtoReg = 1;
+				end
 			end
 		endcase
 	end

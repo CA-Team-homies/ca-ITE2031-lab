@@ -71,13 +71,13 @@ module CPU(
 	assign immi = 	inst[15:0];
 	assign immj = 	inst[25:0];
 
-  assign rd_addr1 = rs;
-  assign rd_addr2 = rt;
+  	assign rd_addr1 = rs;
+  	assign rd_addr2 = rt;
 
 	assign mem_write_data = B;
 
 	assign halt	= (inst == 32'b0);
-
+	
 	always @(*) begin
 		Address = IorD ? ALUOut : PC;
 		case(RegDst)
@@ -109,6 +109,7 @@ module CPU(
 		if (rst) PC <= 0;
 		else if (PCWrite || (PCWriteCond && alu_result == 0)) PC <= PC_next;
 		if (IRWrite) IR <= MemData;
+		// always latched
 		MDR <= MemData;
 		A <= rd_data1;
 		B <= rd_data2;
