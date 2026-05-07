@@ -79,12 +79,32 @@ module CTRL(
 					ALUSrcA = 1;
 					ALUSrcB = 2'b00;
 					NextState = 4;
-					ALUOp = funct
+					case(funct)
+						`FUNCT_ADDU:  ALUOp = `ALU_ADDU;
+						`FUNCT_AND: 	ALUOp = `ALU_AND;
+						`FUNCT_NOR: 	ALUOp = `ALU_NOR;
+						`FUNCT_OR: 		ALUOp = `ALU_OR;
+						`FUNCT_SLT:		ALUOp = `ALU_SLT;
+						`FUNCT_SLTU: 	ALUOp = `ALU_SLTU;
+						`FUNCT_SUBU: 	ALUOp = `ALU_SUBU;
+						`FUNCT_XOR: 	ALUOp = `ALU_XOR;
+						`FUNCT_SLL: 	ALUOp = `ALU_SLL;
+						`FUNCT_SRA: 	ALUOp = `ALU_SRA;
+						`FUNCT_SRL: 	ALUOp = `ALU_SRL;
+					endcase
 				end
-				else begin// For other I-type inst'
+				else begin // For other I-type inst'
 					ALUSrcA = 1;
 					ALUSrcB = 2'b10;
-					ALUOp = opcode;
+					case(opcode)
+						`OP_ADDIU: ALUOp = `ALU_ADDU; 
+						`OP_SLTI: ALUOp = `ALU_SLT; 
+						`OP_SLTIU: ALUOp = `ALU_SLTU; 
+						`OP_ANDI: ALUOp = `ALU_AND; 
+						`OP_ORI: ALUOp = `ALU_OR; 
+						`OP_XORI: ALUOp = `ALU_XOR; 
+						`OP_LUI: ALUOp = `ALU_LUI; 
+					endcase
 					NextState = 4;
 					if (opcode == `OP_LW || opcode == `OP_SW) begin
 						NextState = 3;
