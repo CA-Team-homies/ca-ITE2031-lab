@@ -35,8 +35,8 @@ module CPU(
 	wire [15:0] immi;
 	wire [25:0] immj;
 
-	wire [31:0] rd_addr1;
-	wire [31:0] rd_addr2;
+	wire [4:0] rd_addr1;
+	wire [4:0] rd_addr2;
 	wire [31:0] rd_data1;
 	wire [31:0] rd_data2;
 	wire [31:0] mem_write_data;
@@ -108,9 +108,9 @@ module CPU(
 	always @(posedge clk) begin
 		if (rst) PC <= 0;
 		else if (PCWrite || (PCWriteCond && alu_result == 0)) PC <= PC_next;
-		if (IRWrite) IR <= MemData;
+		if (IRWrite) IR <= mem_read_data;
 		// always latched
-		MDR <= MemData;
+		MDR <= mem_read_data;
 		A <= rd_data1;
 		B <= rd_data2;
 		ALUOut <= alu_result;
@@ -134,7 +134,7 @@ module CPU(
 		.PCWrite(PCWrite),
 		.NextState(NextState),
 		.IRWrite(IRWrite),
-		.IRDone(IRDone)
+		.InstDone(InstDone)
 	);
 
 	RF rf (
