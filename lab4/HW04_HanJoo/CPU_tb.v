@@ -21,10 +21,10 @@ module CPU_tb;
 		$readmemh("reference_reg5.mem", register_file);
 	end
     
-	initial begin
-        $dumpfile("waveform.vcd");
-        $dumpvars(0,CPU_tb);
-    end
+	// initial begin
+    //     $dumpfile("waveform.vcd");
+    //     $dumpvars(0,CPU_tb);
+    // end
 
     initial begin : CLOCK_GENERATOR
         clk = 1'b0;

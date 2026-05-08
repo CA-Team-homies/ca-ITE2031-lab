@@ -54,6 +54,7 @@ module CTRL(
 				ALUSrcB = 2'b01;
 				PCWrite = 1;
 				PCSource = 2'b00;
+				ALUOp = `ALU_ADDU;
 				NextState = `STATE1;
 			end
 
@@ -152,6 +153,7 @@ module CTRL(
 					endcase
 					NextState = `STATE4;
 					if (opcode == `OP_LW || opcode == `OP_SW) begin
+						ALUOp = `ALU_ADDU;
 						NextState = `STATE3;
 					end
 				end
@@ -209,6 +211,7 @@ module CTRL(
 				else begin
 					if (opcode == `OP_LW) MemtoReg = 1;
 				end
+				
 			end
 		endcase
 	end

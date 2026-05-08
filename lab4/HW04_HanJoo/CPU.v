@@ -110,20 +110,27 @@ module CPU(
 	always @(posedge clk) begin
 		if (rst) begin
 			PC <= 0;
+			IR <= 0;
+			MDR <= 0;
+			A <= 0;
+			B <= 0;
+			ALUOut <= 0;
 			State <= `STATE0;
 		end
-		else if (PCWrite || (PCWriteCond && (alu_result == 0))) begin
-			PC <= PC_next;
-		end
-		if (IRWrite) begin
-			IR <= mem_read_data;
-		end
-		// always latched
-		MDR <= mem_read_data;
-		A <= rd_data1;
-		B <= rd_data2;
-		ALUOut <= alu_result;
-		State <= NextState;
+		else begin
+			if (PCWrite || (PCWriteCond && (alu_result == 0))) begin
+				PC <= PC_next;
+			end
+			if (IRWrite) begin
+				IR <= mem_read_data;
+			end
+			// always latched
+			MDR <= mem_read_data;
+			A <= rd_data1;
+			B <= rd_data2;
+			ALUOut <= alu_result;
+			State <= NextState;
+		end	
 	end
 	
 	CTRL ctrl (
