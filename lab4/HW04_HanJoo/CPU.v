@@ -141,7 +141,7 @@ module CPU(
 				inst_count <= inst_count + 1;
 			end
 
-			if (PCWrite || (PCWriteCond && (alu_result == 0))) begin
+			if (PCWrite || (PCWriteCond && (~opcode[0]^(|alu_result)))) begin
 				PC <= PC_next;
 			end
 			if (IRWrite) begin
