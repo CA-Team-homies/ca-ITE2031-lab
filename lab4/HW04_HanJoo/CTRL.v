@@ -15,6 +15,7 @@ module CTRL(
 	output reg [1:0] MemtoReg,
 	output reg MemWrite,
 	output reg IorD,
+	output reg SignExtend,
 
 	output reg ALUSrcA,
 	output reg [1:0] ALUSrcB,
@@ -39,6 +40,7 @@ module CTRL(
 		ALUSrcA = 0;
 		ALUSrcB = 0;
 		ALUOp = 0;
+		SignExtend = 1;
 		PCSource = 0;
 		PCWriteCond = 0;
 		PCWrite = 0;
@@ -118,9 +120,18 @@ module CTRL(
 						`OP_ADDIU: ALUOp = `ALU_ADDU; 
 						`OP_SLTI: ALUOp = `ALU_SLT; 
 						`OP_SLTIU: ALUOp = `ALU_SLTU; 
-						`OP_ANDI: ALUOp = `ALU_AND; 
-						`OP_ORI: ALUOp = `ALU_OR; 
-						`OP_XORI: ALUOp = `ALU_XOR; 
+						`OP_ANDI: begin
+							ALUOp = `ALU_AND; 
+							SignExtend = 0;
+						end
+						`OP_ORI: begin
+							ALUOp = `ALU_OR; 
+							SignExtend = 0;
+						end
+						`OP_XORI: begin
+							ALUOp = `ALU_XOR; 
+							SignExtend = 0;
+						end
 						`OP_LUI: ALUOp = `ALU_LUI; 
 					endcase
 					NextState = `STATE4;

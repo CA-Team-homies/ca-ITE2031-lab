@@ -51,6 +51,7 @@ module CPU(
 	wire [1:0] MemtoReg;
 	wire MemWrite;
 	wire IorD;
+	wire SignExtend;
 	wire ALUSrcA;
 	wire [1:0] ALUSrcB;
 	wire [3:0] ALUOp;
@@ -95,7 +96,7 @@ module CPU(
 		case (ALUSrcB)
 			2'd0: Operand2 = B;
 			2'd1: Operand2 = 32'd4;
-			2'd2: Operand2 = ((opcode == `OP_ORI) || (opcode == `OP_XORI) || (opcode == `OP_ANDI)) ? {16'b0, immi} : {{16{immi[15]}}, immi};
+			2'd2: Operand2 = SignExtend ? {{16{immi[15]}}, immi} : {16'b0, immi};
 			2'd3: Operand2 = {{16{immi[15]}}, immi} << 2;
 		endcase
 		case (PCSource)
@@ -143,6 +144,7 @@ module CPU(
 		.MemtoReg(MemtoReg),
 		.MemWrite(MemWrite),
 		.IorD(IorD),
+		.SignExtend(SignExtend),
 		.ALUSrcA(ALUSrcA),
 		.ALUSrcB(ALUSrcB),
 		.ALUOp(ALUOp),
