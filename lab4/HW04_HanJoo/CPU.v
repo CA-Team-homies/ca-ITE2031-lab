@@ -7,6 +7,10 @@ module CPU(
 	output 		halt
 	);
 
+	// For performance measure
+	reg [31:0] cycle_count;
+	reg [31:0] inst_count;
+
 	// Define PC
 	reg [31:0] PC;
 
@@ -80,6 +84,14 @@ module CPU(
 	assign halt	= (IR == 32'b0);
 	
 	always @(*) begin
+		if(halt && (cycle_count > 10)) begin
+			$display(" Total Cycles      : %0d", cycle_count);
+			$display(" Total Instructions: %0d", inst_count);
+			$display(" IPC               : %f", $itor(inst_count) / $itor(cycle_count));
+			$display(" CPI               : %f", $itor(cycle_count) / $itor(inst_count));
+			$display(" Avg Time/Inst     : %f ns", ($itor(cycle_count) * 10.0) / $itor(inst_count));
+		end
+
 		Address = IorD ? ALUOut : PC;
 		case (RegDst)
 			2'd0: wr_addr = rt;
@@ -107,6 +119,10 @@ module CPU(
 		endcase
 	end
 
+	initial begin
+        cycle_count <= 0;
+		inst_count <= 0;
+    end
 	// Update the Clock
 	always @(posedge clk) begin
 		if (rst) begin
@@ -115,10 +131,16 @@ module CPU(
 			MDR <= 0;
 			A <= 0;
 			B <= 0;
-			ALUOut <= 0;
+			ALUOut <= 0;			
 			State <= `STATE0;
 		end
 		else begin
+			// For performance measure
+			cycle_count <= cycle_count + 1;
+			if (InstDone) begin
+				inst_count <= inst_count + 1;
+			end
+
 			if (PCWrite || (PCWriteCond && (alu_result == 0))) begin
 				PC <= PC_next;
 			end
