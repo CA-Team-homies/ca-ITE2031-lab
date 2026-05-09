@@ -42,7 +42,7 @@ module CTRL(
 		PCSource = 0;
 		PCWriteCond = 0;
 		PCWrite = 0;
-		NextState = 0;
+		//NextState = 0;
 		IRWrite = 0;
 		InstDone = 0;
 
@@ -70,7 +70,7 @@ module CTRL(
 				PCSource = 0;
 				PCWriteCond = 0;
 				PCWrite = 0;
-				NextState = 0;
+				//NextState = 0;
 				IRWrite = 0;
 				InstDone = 0;
 
@@ -109,7 +109,7 @@ module CTRL(
 				PCSource = 0;
 				PCWriteCond = 0;
 				PCWrite = 0;
-				NextState = 0;
+				//NextState = 0;
 				IRWrite = 0;
 				InstDone = 0;
 
@@ -171,7 +171,7 @@ module CTRL(
 				PCSource = 0;
 				PCWriteCond = 0;
 				PCWrite = 0;
-				NextState = 0;
+				//NextState = 0;
 				IRWrite = 0;
 				InstDone = 0;
 
@@ -197,7 +197,7 @@ module CTRL(
 				PCSource = 0;
 				PCWriteCond = 0;
 				PCWrite = 0;
-				NextState = 0;
+				//NextState = 0;
 				IRWrite = 0;
 				InstDone = 0;
 
@@ -211,7 +211,7 @@ module CTRL(
 				else begin
 					if (opcode == `OP_LW) MemtoReg = 1;
 				end
-				
+
 			end
 		endcase
 	end

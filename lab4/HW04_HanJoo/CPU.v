@@ -95,13 +95,14 @@ module CPU(
 		case (ALUSrcB)
 			2'd0: Operand2 = B;
 			2'd1: Operand2 = 32'd4;
-			2'd2: Operand2 = {{16{immi[15]}}, immi};
+			2'd2: Operand2 = ((opcode == `OP_ORI) || (opcode == `OP_XORI) || (opcode == `OP_ANDI)) ? {16'b0, immi} : {{16{immi[15]}}, immi};
 			2'd3: Operand2 = {{16{immi[15]}}, immi} << 2;
 		endcase
 		case (PCSource)
 			2'd0: PC_next = alu_result;
 			2'd1: PC_next = ALUOut;
 			2'd2: PC_next = (PC & 32'hF0000000) | (immj << 2);
+			//2'd3: PC_next = A;
 			2'd3: PC_next = rd_data1;
 		endcase
 	end
