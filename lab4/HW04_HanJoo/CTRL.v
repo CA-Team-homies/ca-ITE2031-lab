@@ -42,7 +42,6 @@ module CTRL(
 		PCSource = 0;
 		PCWriteCond = 0;
 		PCWrite = 0;
-		//NextState = 0;
 		IRWrite = 0;
 		InstDone = 0;
 
@@ -59,21 +58,6 @@ module CTRL(
 			end
 
 			`STATE1: begin
-				RegDst = 0;
-				RegWrite = 0;
-				MemtoReg = 0;
-				MemWrite = 0;
-				IorD = 0;
-				ALUSrcA = 0;
-				ALUSrcB = 0;
-				ALUOp = 0;
-				PCSource = 0;
-				PCWriteCond = 0;
-				PCWrite = 0;
-				//NextState = 0;
-				IRWrite = 0;
-				InstDone = 0;
-
 				if (opcode == `OP_J || opcode ==`OP_JAL) begin
 					PCWrite = 1;
 					PCSource = 2'b10;
@@ -82,11 +66,13 @@ module CTRL(
 						RegDst = 2'b10;
 						RegWrite = 1;
 					end
+					InstDone = 1;
 					NextState = `STATE0;
 				end
 				else if ((opcode == `OP_RTYPE) && (funct == `FUNCT_JR)) begin
 					PCWrite = 1;
-					PCSource = 2'b11;	
+					PCSource = 2'b11;
+					InstDone = 1;
 					NextState = `STATE0;
 				end
 				else begin
@@ -98,27 +84,13 @@ module CTRL(
 			end
 
 			`STATE2: begin
-				RegDst = 0;
-				RegWrite = 0;
-				MemtoReg = 0;
-				MemWrite = 0;
-				IorD = 0;
-				ALUSrcA = 0;
-				ALUSrcB = 0;
-				ALUOp = 0;
-				PCSource = 0;
-				PCWriteCond = 0;
-				PCWrite = 0;
-				//NextState = 0;
-				IRWrite = 0;
-				InstDone = 0;
-
 				if (opcode == `OP_BEQ || opcode == `OP_BNE) begin
 					ALUSrcA = 1;
 					ALUSrcB = 2'b00;
 					ALUOp = (opcode == `OP_BEQ) ? `ALU_NEQ : `ALU_EQ;
 					PCSource = 2'b01;
 					PCWriteCond = 1;
+					InstDone = 1;
 					NextState = `STATE0;
 				end
 				else if (opcode == `OP_RTYPE) begin
@@ -160,50 +132,22 @@ module CTRL(
 			end
 
 			`STATE3: begin
-				RegDst = 0;
-				RegWrite = 0;
-				MemtoReg = 0;
-				MemWrite = 0;
-				IorD = 0;
-				ALUSrcA = 0;
-				ALUSrcB = 0;
-				ALUOp = 0;
-				PCSource = 0;
-				PCWriteCond = 0;
-				PCWrite = 0;
-				//NextState = 0;
-				IRWrite = 0;
-				InstDone = 0;
-
 				IorD = 1;
 				if (opcode == `OP_LW) begin
 					NextState = `STATE4;
 				end
 				else if (opcode == `OP_SW) begin
 					MemWrite = 1;
+					InstDone = 1;
 					NextState = `STATE0;
 				end
 			end
 
 			`STATE4: begin
 				RegDst = 0;
-				RegWrite = 0;
-				MemtoReg = 0;
-				MemWrite = 0;
-				IorD = 0;
-				ALUSrcA = 0;
-				ALUSrcB = 0;
-				ALUOp = 0;
-				PCSource = 0;
-				PCWriteCond = 0;
-				PCWrite = 0;
-				//NextState = 0;
-				IRWrite = 0;
-				InstDone = 0;
-
-				RegDst = 0;
 				RegWrite = 1;
 				MemtoReg = 0;
+				InstDone = 1;
 				NextState = `STATE0;
 				if (opcode == `OP_RTYPE) begin
 					RegDst = 1;
@@ -211,7 +155,6 @@ module CTRL(
 				else begin
 					if (opcode == `OP_LW) MemtoReg = 1;
 				end
-
 			end
 		endcase
 	end

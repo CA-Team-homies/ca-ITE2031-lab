@@ -13,7 +13,7 @@ module MEM(
     reg [31:0] memory [0:8191];
 
     initial begin
-        $readmemh("initial_mem6.mem", memory);
+        $readmemh("initial_mem7.mem", memory);
     end
 
     always @(*) begin
