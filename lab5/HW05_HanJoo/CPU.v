@@ -44,7 +44,7 @@ module CPU(
 	reg [31:0] EXMEM_PC;
 	reg [31:0] EXMEM_ALUResult;
 	reg [31:0] EXMEM_Data;
-	reg [31:0] EXMEM_RegAddr;
+	reg [4:0] EXMEM_RegAddr;
 
 	// MEM/WB
 	reg MEMWB_RegWrite;
@@ -53,6 +53,7 @@ module CPU(
 	reg [31:0] MEMWB_PC;
 	reg [31:0] MEMWB_Data;
 	reg [31:0] MEMWB_ALUResult;
+	reg [4:0] MEMWB_RegAddr;
 
 	// define variables
 	reg [31:0] PC_next;
@@ -60,6 +61,8 @@ module CPU(
 	reg [4:0] RegAddr;
 	reg [31:0] RegData;
 	reg [31:0] operand2;
+
+	reg [1:0] stall;
 
 	// define wires
 	wire [31:0] inst_addr;
@@ -177,9 +180,23 @@ module CPU(
 			MEMWB_PC <= EXMEM_PC;
 			MEMWB_Data <= mem_read_data;
 			MEMWB_ALUResult <= EXMEM_ALUResult;
+			MEMWB_RegAddr <= EXMEM_RegAddr;
 		end	
 	end
 	
+	HAZARD hazard(
+		.opcode(opcode),
+		.rs(rs),
+		.rt(rt),
+		.dest_EX(RegAddr),
+		.dest_MEM(EXMEM_RegAddr),
+		.dest_WB(MEMWB_RegAddr),
+		.RegWrite_EX(IDEX_RegWrite),
+		.RegWrite_MEM(EXMEM_RegWrite),
+		.RegWrite_WB(MEMWB_RegWrite),
+		.stall(stall)
+	);
+
 	CTRL ctrl (
 		.opcode(opcode),
 		.funct(funct),
