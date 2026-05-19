@@ -63,7 +63,7 @@ module CPU(
 	reg [31:0] operand2;
 
 	reg [1:0] stall;
-	reg taken;
+	wire taken;
 
 	// define wires
 	wire [31:0] inst_addr;
@@ -116,7 +116,9 @@ module CPU(
 	assign immj = 	IFID_Inst[25:0];
 
 	assign halt	= (IR == 32'b0);
-	
+	assign taken = ((opcode == `OP_BEQ && IDEX_Data1 == IDEX_Data2) || (opcode == `OP_BNE && IDEX_Data1 != IDEX_Data2))
+
+	// opcode == beq/bne && taken 아니야... flush 
 	always @(*) begin
 		ext_imm = IDEX_SignExtend ? {{16{immi[15]}}, IDEX_IMMI} : {16'b0, IDEX_IMMI};
 		case (PCSource)
@@ -167,7 +169,7 @@ module CPU(
 			IDEX_IMMJ <= immj;
 			IDEX_RT <= rt;
 			IDEX_RD <= rd;
-			taken <= ((opcode == `OP_BEQ && IDEX_Data1 == IDEX_Data2) || (opcode == `OP_BNE && IDEX_Data1 != IDEX_Data2))
+
 			EXMEM_RegWrite <= IDEX_RegWrite;
 			EXMEM_MemtoReg <= IDEX_MemtoReg;
 			EXMEM_MemWrite <= IDEX_MemWrite;
