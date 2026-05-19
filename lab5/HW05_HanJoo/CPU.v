@@ -63,6 +63,7 @@ module CPU(
 	reg [31:0] operand2;
 
 	reg [1:0] stall;
+	reg taken;
 
 	// define wires
 	wire [31:0] inst_addr;
@@ -120,7 +121,7 @@ module CPU(
 		ext_imm = IDEX_SignExtend ? {{16{immi[15]}}, IDEX_IMMI} : {16'b0, IDEX_IMMI};
 		case (PCSource)
 			2'd0: PC_next = PC + 4;
-			2'd1: PC_next = PC + 4 + (((opcode == `OP_BEQ && IDEX_Data1 == IDEX_Data2) || (opcode == `OP_BNE && IDEX_Data1 != IDEX_Data2)) ? ext_imm : 0);
+			2'd1: PC_next = PC + 4 + (taken ? ext_imm : 0);
 			2'd2: PC_next = ((PC + 4) & 32'hF0000000) | (IDEX_IMMJ << 2);
 			2'd3: PC_next = IDEX_Data1;
 		endcase
@@ -166,7 +167,7 @@ module CPU(
 			IDEX_IMMJ <= immj;
 			IDEX_RT <= rt;
 			IDEX_RD <= rd;
-
+			taken <= ((opcode == `OP_BEQ && IDEX_Data1 == IDEX_Data2) || (opcode == `OP_BNE && IDEX_Data1 != IDEX_Data2))
 			EXMEM_RegWrite <= IDEX_RegWrite;
 			EXMEM_MemtoReg <= IDEX_MemtoReg;
 			EXMEM_MemWrite <= IDEX_MemWrite;
