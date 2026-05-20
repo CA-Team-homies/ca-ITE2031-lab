@@ -46,3 +46,7 @@
 `define   STATE2    3'd2
 `define   STATE3    3'd3
 `define   STATE4    3'd4
+
+`define   STALL1    3'd1
+`define   STALL2    3'd2
+`define   STALL3    3'd3
