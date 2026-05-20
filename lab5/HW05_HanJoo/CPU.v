@@ -34,6 +34,7 @@ module CPU(
 	reg [15:0] IDEX_IMMI; // resolve @ EX stage
 	reg [4:0] IDEX_RT;
 	reg [4:0] IDEX_RD;
+	reg [4:0] IDEX_Shamt;
 
 	// EX/MEM
 	reg EXMEM_RegWrite;
@@ -63,12 +64,9 @@ module CPU(
 	reg [31:0] operand2;
 
 	reg [1:0] stall_count;
-	wire taken;
+	wire branch_taken;
 
 	// define wires
-	wire [31:0] inst_addr;
-	wire [31:0] inst;
-
 	// Split the Instructions
 	wire [5:0] opcode;
 	wire [4:0] rs;
@@ -91,7 +89,6 @@ module CPU(
 	wire [31:0] mem_addr;
 
 	wire [31:0] operand1;
-	wire [31:0] operand2;
 	wire [31:0] alu_result;
 	
 	wire [1:0] stall;
@@ -115,30 +112,34 @@ module CPU(
 	assign funct = 	IFID_Inst[5:0];
 	assign immi = 	IFID_Inst[15:0];
 	assign immj = 	IFID_Inst[25:0];
+	assign rd_addr1 = rs;
+	assign rd_addr2 = rt;
+	assign inst_addr = PC;
+	assign operand1 = IDEX_Data1;
 
-	assign halt	= (IR == 32'b0);
-	assign taken = ((opcode == `OP_BEQ && IDEX_Data1 == IDEX_Data2) || (opcode == `OP_BNE && IDEX_Data1 != IDEX_Data2))
+	assign halt	= (IFID_Inst == 32'b0);
+	assign branch_taken = ((opcode == `OP_BEQ) && (rd_data1 == rd_data2)) || ((opcode == `OP_BNE) && (rd_data1 != rd_data2));
 
 	// opcode == beq/bne && taken 아니야... flush 
 	always @(*) begin
 		ext_imm = IDEX_SignExtend ? {{16{immi[15]}}, IDEX_IMMI} : {16'b0, IDEX_IMMI};
-		case (PCSource)
+		case (IDEX_PCSource)
 			2'd0: PC_next = PC + 4;
 			2'd1: PC_next = PC + 4 + (taken ? ext_imm : 0);
 			2'd2: PC_next = ((PC + 4) & 32'hF0000000) | (IDEX_IMMJ << 2);
 			2'd3: PC_next = IDEX_Data1;
 		endcase
-		case (RegDst)
-			2'd0: RegAddr = rt;
-			2'd1: RegAddr = rd;
+		case (IDEX_RegDst)
+			2'd0: RegAddr = IDEX_RT;
+			2'd1: RegAddr = IDEX_RD;
 			2'd2: RegAddr = 5'd31;
 		endcase
-		case (MemtoReg)
+		case (MEMWB_MemtoReg)
 			2'd0: RegData = MEMWB_Data;
-			2'd1: wr_data = MEMWB_ALUResult;
-			2'd2: wr_data = MEMWB_PC;
+			2'd1: RegData = MEMWB_ALUResult;
+			2'd2: RegData = MEMWB_PC;
 		endcase
-		operand2 = ALUSrc ? ext_imm : IDEX_Data2;
+		operand2 = IDEX_ALUSrc ? ext_imm : IDEX_Data2;
 	end
 
 	// Update the Clock
@@ -174,6 +175,7 @@ module CPU(
 			IDEX_IMMJ <= immj;
 			IDEX_RT <= rt;
 			IDEX_RD <= rd;
+			IDEX_Shamt <= shamt;
 
 			EXMEM_RegWrite <= IDEX_RegWrite;
 			EXMEM_MemtoReg <= IDEX_MemtoReg;
@@ -226,9 +228,9 @@ module CPU(
 		.rd_addr2(rd_addr2),
 		.rd_data1(rd_data1),
 		.rd_data2(rd_data2),
-		.RegWrite(RegWrite),
-		.wr_addr(wr_addr),
-		.wr_data(wr_data)
+		.RegWrite(MEMWB_RegWrite),
+		.wr_addr(MEMWB_RegAddr),
+		.wr_data(RegData)
 	);
 
 	MEM mem (
@@ -237,16 +239,16 @@ module CPU(
 		.inst(inst),
 		.inst_addr(inst_addr),
 		.mem_addr(EXMEM_ALUResult),
-		.MemWrite(MemWrite),
-		.mem_write_data(mem_write_data),
+		.MemWrite(EXMEM_MemWrite),
+		.mem_write_data(EXMEM_Data),
 		.mem_read_data(mem_read_data)
 	);
 	
 	ALU alu (
-		.operand1(Operand1),
-		.operand2(Operand2),
-		.shamt(shamt),
-		.funct(ALUOp),
+		.operand1(operand1),
+		.operand2(operand2),
+		.shamt(IDEX_Shamt),
+		.funct(IDEX_ALUOp),
 		.alu_result(alu_result)
 	);
 	

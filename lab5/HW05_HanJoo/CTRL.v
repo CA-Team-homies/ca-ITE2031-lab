@@ -15,7 +15,7 @@ module CTRL(
 	output reg SignExtend,
 	output reg ALUSrc,
 	output reg [3:0] ALUOp,
-	output reg [1:0] RegDst,
+	output reg [1:0] RegDst
   );
 
 	always @(*) begin
@@ -58,7 +58,7 @@ module CTRL(
 
 			`OP_JAL: begin
 				PCSource = 2'b10;
-				MemtoReg = 2'b10
+				MemtoReg = 2'b10;
 				RegWrite = 1;
 			end
 

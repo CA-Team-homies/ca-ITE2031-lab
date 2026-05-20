@@ -32,15 +32,15 @@ module HAZARD (
                 // J 타입이면 아예 안읽음
             `OP_J, `OP_JAL : use_reg = 2'b00;
                 // 그 외의 I 타입 -> 01
-            default use_reg = 2'b01;
+            default: use_reg = 2'b01;
                 
         endcase
     end
     always @(*) begin 
         stall = 0;
-        if((rs == dest_EX) && use_reg[0] && RegWrite_EX) || ((rt == dest_EX) && use_reg[1] && RegWrite_EX) stall = `STALL3;
-        else if ((rs == dest_MEM) && use_reg[0] && RegWrite_MEM) || ((rt == dest_MEM) && use_reg[1] && RegWrite_MEM) stall = `STALL2;
-        else if ((rs == dest_WB) && use_reg[0] && RegWrite_WB) || ((rt == dest_WB) && use_reg[1] && RegWrite_WB) stall = `STALL1;
+        if (()(rs == dest_EX) && use_reg[0] && RegWrite_EX) || ((rt == dest_EX) && use_reg[1] && RegWrite_EX)) stall = `STALL3;
+        else if (((rs == dest_MEM) && use_reg[0] && RegWrite_MEM) || ((rt == dest_MEM) && use_reg[1] && RegWrite_MEM)) stall = `STALL2;
+        else if (((rs == dest_WB) && use_reg[0] && RegWrite_WB) || ((rt == dest_WB) && use_reg[1] && RegWrite_WB)) stall = `STALL1;
     end
 
 endmodule
