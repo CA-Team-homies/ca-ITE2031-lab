@@ -5,6 +5,7 @@ module CTRL(
 	// input opcode and funct
 	input [5:0] opcode,
 	input [5:0] funct,
+	input [1:0] stall,
 
 	// output various ports
 	output reg RegWrite,
@@ -138,5 +139,9 @@ module CTRL(
 				ALUOp = `ALU_ADDU;
 			end
 		endcase
+		if (stall) begin
+			RegWrite = 0;
+			MemWrite = 0;
+		end
 	end
 endmodule

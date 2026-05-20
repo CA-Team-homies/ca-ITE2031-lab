@@ -62,7 +62,7 @@ module CPU(
 	reg [31:0] RegData;
 	reg [31:0] operand2;
 
-	reg [1:0] stall;
+	reg [1:0] stall_count;
 
 	// define wires
 	wire [31:0] inst_addr;
@@ -89,10 +89,11 @@ module CPU(
 	wire [31:0] mem_read_data;
 	wire [31:0] mem_addr;
 
-
 	wire [31:0] operand1;
 	wire [31:0] operand2;
 	wire [31:0] alu_result;
+	
+	wire [1:0] stall;
 
 	// Control-related wires
 	wire RegWrite;
@@ -139,15 +140,19 @@ module CPU(
 
 	// Update the Clock
 	always @(posedge clk) begin
+		if (stall > stall_count) begin
+			stall_count <= stall;
+		end
 		if (rst) begin
 			PC <= 0;
 		end
 		else begin
-			// j, jr은 EX에서 immj, rddata1 EXstage에 점프추가
-			// Branch는 MEM에서 점프
-			// jal은 WB까지 가야함 점프는 EX에서 미리하되 HAZARD 신경쓰기
-			// 시그널 다시 설정후 삼항연산자사용
-			PC <= PC_next;
+			if (stall_count > 0) begin
+				stall_count <= stall_count - 1;
+			end
+			else begin
+				PC <= PC_next;
+			end
 			IFID_PC <= PC + 4;
 			IFID_Inst <= inst;
 
@@ -200,22 +205,15 @@ module CPU(
 	CTRL ctrl (
 		.opcode(opcode),
 		.funct(funct),
-		.State(State),
-		.RegDst(RegDst),
+		.stall(stall_count),
 		.RegWrite(RegWrite),
 		.MemtoReg(MemtoReg),
 		.MemWrite(MemWrite),
-		.IorD(IorD),
-		.SignExtend(SignExtend),
-		.ALUSrcA(ALUSrcA),
-		.ALUSrcB(ALUSrcB),
-		.ALUOp(ALUOp),
 		.PCSource(PCSource),
-		.PCWriteCond(PCWriteCond),
-		.PCWrite(PCWrite),
-		.NextState(NextState),
-		.IRWrite(IRWrite),
-		.InstDone(InstDone)
+		.SignExtend(SignExtend),
+		.ALUSrc(ALUSrc),
+		.ALUOp(ALUOp),
+		.RegDst(RegDst)
 	);
 
 	RF rf (
@@ -233,7 +231,9 @@ module CPU(
 	MEM mem (
 		.clk(clk),
 		.rst(rst),
-		.mem_addr(Address),
+		.inst(inst),
+		.inst_addr(inst_addr),
+		.mem_addr(EXMEM_ALUResult),
 		.MemWrite(MemWrite),
 		.mem_write_data(mem_write_data),
 		.mem_read_data(mem_read_data)
