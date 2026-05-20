@@ -13,6 +13,10 @@ module CTRL(
     output reg ALUSrc,
     output reg [3:0] ALUOp,
     output reg [1:0] RegDst
+
+	// Jump, Branch, JR, SavePC 필요 없음.
+	// 이제 한 싸이클 내에 안돌릴거라서 -> latch로 각 inst 정보 넘겨주면서 체크 가능.
+	// MemRead도 사실상 필요없음.
 );
 
     always @(*) begin
@@ -47,21 +51,25 @@ module CTRL(
                     `FUNCT_SLL : ALUOp = `ALU_SLL;
                     `FUNCT_SRA : ALUOp = `ALU_SRA;
                     `FUNCT_SRL : ALUOp = `ALU_SRL;
-                    default: begin
-                        RegWrite = 1'b0;
-                        ALUOp = `ALU_ADDU;
-                    end
+                    // default: begin
+                    //     RegWrite = 1'b0;
+                    //     ALUOp = `ALU_ADDU;
+                    // end
                 endcase
             end
 
             `OP_J: begin
                 PCSource = 2'b10;
+				// target 값으로 PC 업데이트
             end
 
             `OP_JAL: begin
+				
                 PCSource = 2'b10;
                 RegDst   = 2'b10;   // $ra = $31
                 MemtoReg = 2'b10;   // write PC + 4
+				// JAL 은 r31에 접근하는 inst
+				// -> 어쩔수없이 pipeline을 WB stage 까지 끌고 가야함.
                 RegWrite = 1'b1;
             end
 
@@ -141,17 +149,17 @@ module CTRL(
                 SignExtend = 1'b1;
                 ALUOp      = `ALU_ADDU;
             end
-
-            default: begin
-                RegWrite   = 1'b0;
-                MemtoReg   = 2'b00;
-                MemWrite   = 1'b0;
-                PCSource   = 2'b00;
-                SignExtend = 1'b0;
-                ALUSrc     = 1'b0;
-                ALUOp      = `ALU_ADDU;
-                RegDst     = 2'b00;
-            end
+			// rebun
+            // default: begin
+            //     RegWrite   = 1'b0;
+            //     MemtoReg   = 2'b00;
+            //     MemWrite   = 1'b0;
+            //     PCSource   = 2'b00;
+            //     SignExtend = 1'b0;
+            //     ALUSrc     = 1'b0;
+            //     ALUOp      = `ALU_ADDU;
+            //     RegDst     = 2'b00;
+            // end
         endcase
     end
 endmodule

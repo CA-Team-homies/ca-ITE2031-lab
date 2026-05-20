@@ -56,7 +56,8 @@ module CPU(
     reg [31:0] MEMWB_ALUResult;
     reg [4:0]  MEMWB_RegAddr;
 
-    // Internal regs
+    // 내부에서 사용할 reg 들... 
+	// always 문에서 처리해주어야 해서 reg로 정의.
     reg [31:0] PC_next;
     reg [31:0] ext_imm;
     reg [4:0]  RegAddr;
@@ -64,7 +65,9 @@ module CPU(
     reg [31:0] operand2;
     reg [1:0]  stall_count;
 
-    // Instruction fields from IF/ID
+    // Split the instructions
+	// Instruction-related wires
+	// ID stage 분리시켜서 에서 사용할 wire들.
     wire [5:0]  opcode;
     wire [4:0]  rs;
     wire [4:0]  rt;
@@ -86,10 +89,11 @@ module CPU(
     wire [31:0] operand1;
     wire [31:0] alu_result;
 
+	// 현재 남은 #stall, stall인지 아닌지.
     wire [1:0] stall;
     wire stall_active;
 
-    // Control wires from raw decoder
+    // CTRL.v 에서 바로 받아오는 signal들.
     wire        ctrl_RegWrite;
     wire [1:0]  ctrl_MemtoReg;
     wire        ctrl_MemWrite;
@@ -111,7 +115,7 @@ module CPU(
     wire [3:0]  id_ALUOp;
     wire [1:0]  id_RegDst;
 
-    // Decode-stage early branch/jump wires
+    // ID stage에서 사용할 wire 들; jump와 branch 관련 연산을 해야함.
     wire        branch_taken;
     wire [31:0] id_branch_target;
     wire [31:0] id_jump_target;
@@ -132,70 +136,104 @@ module CPU(
     assign rd_addr2 = rt;
     assign inst_addr = PC;
 
+	// operand1 은 항상 RF[rs], 즉 rd_data1임.
+	// -> IDEX_Data1 과 연결
     assign operand1 = IDEX_Data1;
 
+	// ID stage에서 decode중인 inst가 nop인지, halt inst는 아닌지 확인해야함.
+	// : nop 이 32'b0이기 때문에 inst만 보았을 때 halt와 구분이 안감.
+	// IF/ID stage 부터 stall/flush가 생길 수 있음.
     assign id_valid_inst = IFID_Valid;
     assign id_halt = id_valid_inst && (IFID_Inst == 32'b0);
 
+	// nop이 아니고 halt 가 아니면 CTRL.v 값 그대로 가져오고,
+	// nop 이거나 halt 라면 기본 값 넣어주기.
     assign id_RegWrite   = (id_valid_inst && !id_halt) ? ctrl_RegWrite   : 1'b0;
     assign id_MemtoReg   = (id_valid_inst && !id_halt) ? ctrl_MemtoReg   : 2'b00;
     assign id_MemWrite   = (id_valid_inst && !id_halt) ? ctrl_MemWrite   : 1'b0;
     assign id_PCSource   = (id_valid_inst && !id_halt) ? ctrl_PCSource   : 2'b00;
     assign id_SignExtend = (id_valid_inst && !id_halt) ? ctrl_SignExtend : 1'b0;
     assign id_ALUSrc     = (id_valid_inst && !id_halt) ? ctrl_ALUSrc     : 1'b0;
-    assign id_ALUOp      = (id_valid_inst && !id_halt) ? ctrl_ALUOp      : `ALU_ADDU;
+    assign id_ALUOp      = (id_valid_inst && !id_halt) ? ctrl_ALUOp      : 4'b0000;
     assign id_RegDst     = (id_valid_inst && !id_halt) ? ctrl_RegDst     : 2'b00;
 
+	// branch early resolution...
+	// 간단한 로직이니, ALU.v 를 거치지 않고 알아서 검사.
     assign branch_taken =
         id_valid_inst && !id_halt &&
         (((opcode == `OP_BEQ) && (rd_data1 == rd_data2)) ||
          ((opcode == `OP_BNE) && (rd_data1 != rd_data2)));
 
+	// branch target 과 jump target 값 일단 만들어 두기. 
     assign id_branch_target = IFID_PC + {{14{immi[15]}}, immi, 2'b00};
     assign id_jump_target   = {IFID_PC[31:28], immj, 2'b00};
 
+	// c.f. PCSourve -> 1이면 branch, 2면 J나 Jal, 3이면 Jr
     assign control_taken =
         id_valid_inst && !id_halt &&
         ((id_PCSource == 2'd2) ||
          (id_PCSource == 2'd3) ||
          ((id_PCSource == 2'd1) && branch_taken));
 
+	// 현재 ID stage에서 stall 인가?
     assign stall_active = (stall_count != 2'b00) || (stall != 2'b00);
+	// flush 가 일어나는 순간 : mispred' 감지...
+	// but stall 이 아닌 순간에만 flush 해야함...
+	// 왜 Why... add r1 r2 r3, beq r1 r6 target 같은 경우,
+	// add가 r1에 쓰고 있기 때문에 beq가 아직 r1 을 사용해서 T/NT를 결정해서는 안됨.
+	// 즉 stall 해야함. 즉, stall이 우선이기 때문에 &&로 연산해야한다...
     assign control_flush = control_taken && !stall_active;
 
-    assign halt = MEMWB_Valid && MEMWB_Halt;
+    
+	//assign halt = (IFID_Inst == 32'b0);
+	// 뒤쪽 pipeline에 아직 명령어가 돌고 있을 수도 있다...
+	// IFID_Inst 를 기준으로 보아서는 안된다. 
+	// 해서 MEM/WB까지 왔을 때, 즉 halt inst가 pipeline 끝까지 왔을 때 halt 시키기...
+	// 또한 nop 자체가 32'b0이다. 즉, halt 와 구분되어야하므로 halt bit도 계속 넘겨주어야함. 
+	assign halt = MEMWB_Valid && MEMWB_Halt;
 
     always @(*) begin
+		// SignExtend -> Ex stage 에서 사용할 operand에 쓰일 extend 종류 결정
+		// -> Ex stage signal...
         ext_imm = IDEX_SignExtend ? {{16{IDEX_IMMI[15]}}, IDEX_IMMI}
                                   : {16'b0, IDEX_IMMI};
+		// rebun
+        // PC_next = PC + 32'd4;
+        // RegAddr = 5'd0;
+        // RegData = 32'd0;
+        // operand2 = 32'd0;
 
-        PC_next = PC + 32'd4;
-        RegAddr = 5'd0;
-        RegData = 32'd0;
-        operand2 = 32'd0;
-
+		// PCSource는 IF stage singal... 
+		// CTRL 에서 바로 받아온 값으로 일단 PC_next 계산해두기
         case (id_PCSource)
-            2'd0: PC_next = PC + 32'd4;
-            2'd1: PC_next = branch_taken ? id_branch_target : (PC + 32'd4);
-            2'd2: PC_next = id_jump_target;
-            2'd3: PC_next = rd_data1;
-            default: PC_next = PC + 32'd4;
+            2'd0: PC_next = PC + 4; 
+            2'd1: PC_next = branch_taken ? id_branch_target : (PC + 4); // for beq and bne
+            2'd2: PC_next = id_jump_target; // for J and Jal ...; pc = target
+            2'd3: PC_next = rd_data1; // only for JR...; JR rs -> pc = rs
+			// rebun
+            //default: PC_next = PC + 32'd4;
         endcase
 
+		// RegDst 는 write_addr 결정해주는 signal
+		// EX stage signal...
         case (IDEX_RegDst)
-            2'd0: RegAddr = IDEX_RT;
-            2'd1: RegAddr = IDEX_RD;
-            2'd2: RegAddr = 5'd31;
-            default: RegAddr = 5'd0;
+            2'd0: RegAddr = IDEX_RT; // for I-type.
+            2'd1: RegAddr = IDEX_RD; // for R-type.
+            2'd2: RegAddr = 5'd31; // only for JAL...; r31 = pc
+			// rebun
+            //default: RegAddr = 5'd0;
         endcase
 
+		// MemtoReg 는 WB stage signal...
         case (MEMWB_MemtoReg)
-            2'd0: RegData = MEMWB_Data;
-            2'd1: RegData = MEMWB_ALUResult;
-            2'd2: RegData = MEMWB_PC;
-            default: RegData = 32'd0;
+            2'd0: RegData = MEMWB_Data; // e.g. lw r2 0x100
+            2'd1: RegData = MEMWB_ALUResult; // e.g. R/I type ALU inst.
+            2'd2: RegData = MEMWB_PC; // JAL inst 전용.
+			// rebun
+            //default: RegData = 32'd0;
         endcase
 
+		// ALUSrc 는 EX stage signal...
         operand2 = IDEX_ALUSrc ? ext_imm : IDEX_Data2;
     end
 
@@ -215,7 +253,7 @@ module CPU(
             IDEX_PCSource <= 2'b00;
             IDEX_SignExtend <= 1'b0;
             IDEX_ALUSrc <= 1'b0;
-            IDEX_ALUOp <= `ALU_ADDU;
+            IDEX_ALUOp <= 4'b0000;
             IDEX_RegDst <= 2'b00;
             IDEX_PC <= 32'd0;
             IDEX_Data1 <= 32'd0;
@@ -248,19 +286,25 @@ module CPU(
             stall_count <= 2'b00;
         end
         else begin
+			// posedge clk -> 한 싸이클 지났으니 stall 업데이트. 
             if (stall_count != 2'b00) begin
-                stall_count <= stall_count - 2'b01;
+                stall_count <= stall_count - 1;
             end
+			// stall count 가 0이 아닌데, stall 값이 있다?
+			// -> 더 긴 stall이 들어 와버렸다.
             else if (stall != 2'b00) begin
-                stall_count <= stall - 2'b01;
+                stall_count <= stall - 1;
             end
-            else begin
-                stall_count <= 2'b00;
-            end
+			// rebun
+            // else begin
+            //     stall_count <= 2'b00;
+            // end
 
             if (stall_active) begin
-                // Freeze PC and IF/ID, insert bubble into ID/EX.
-                PC <= PC;
+				// stall 상태면 -> IF 단계 그대로 유지 + Ex stage로 넘어가는 애들 nop 넣어주기.
+                
+				// 굳이 안싸줘도 되지만 명시적으로 적어주기.
+				PC <= PC;
                 IFID_Valid <= IFID_Valid;
                 IFID_PC <= IFID_PC;
                 IFID_Inst <= IFID_Inst;
@@ -273,7 +317,7 @@ module CPU(
                 IDEX_PCSource <= 2'b00;
                 IDEX_SignExtend <= 1'b0;
                 IDEX_ALUSrc <= 1'b0;
-                IDEX_ALUOp <= `ALU_ADDU;
+                IDEX_ALUOp <= 4'b0000;
                 IDEX_RegDst <= 2'b00;
                 IDEX_PC <= 32'd0;
                 IDEX_Data1 <= 32'd0;
@@ -286,7 +330,7 @@ module CPU(
             end
             else begin
                 PC <= PC_next;
-
+				// flush 면 이전 IF stage inst -> 즉 IFID latch에 있는 것들 없애주기.
                 if (control_flush) begin
                     IFID_Valid <= 1'b0;
                     IFID_PC <= 32'd0;
@@ -294,7 +338,7 @@ module CPU(
                 end
                 else begin
                     IFID_Valid <= 1'b1;
-                    IFID_PC <= PC + 32'd4;
+                    IFID_PC <= PC + 4;
                     IFID_Inst <= inst;
                 end
 
@@ -318,7 +362,8 @@ module CPU(
                 IDEX_Shamt <= shamt;
             end
 
-            // Older stages must keep flowing while the front end is stalled.
+			// stall이 되는 기준 : decode 해보고 hazard 감지 -> 그 뒤에 있는 inst 들 정지
+			// 즉 앞쪽 pipeline 내에 있는 것들은 그대로 가야함.
             EXMEM_Valid <= IDEX_Valid;
             EXMEM_Halt <= IDEX_Halt;
             EXMEM_RegWrite <= IDEX_RegWrite;
