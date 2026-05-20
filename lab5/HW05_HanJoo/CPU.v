@@ -62,7 +62,7 @@ module CPU(
 	reg [31:0] RegData;
 	reg [31:0] operand2;
 
-	reg [1:0] stall;
+	reg [1:0] stall_count;
 	wire taken;
 
 	// define wires
